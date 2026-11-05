@@ -1,9 +1,152 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>The Olit</title>
-    <style>
+import os
+import time
+import random
+import json
+import feedparser
+import tweepy
+import schedule
+
+# --- 1. X API CONFIGURATION ---
+API_KEY = "OCgWBrX9a6EBeRV0XZZNomc1f"
+API_SECRET = "4CMyhjC6pFqK1KaKjHFVhOPXWb0GdBM4B79GR4wA6NGrWSgIG6"
+ACCESS_TOKEN = "2117795255831482368-NIVIhMUc28BeGF7IIG50hoxTPUUmXr"
+ACCESS_TOKEN_SECRET = "Lv9eB3KzpuBLJ0bkxIAagZz6yPpXXAP4E2n9jjlSba1NZ"
+
+client = tweepy.Client(
+    consumer_key=API_KEY,
+    consumer_secret=API_SECRET,
+    access_token=ACCESS_TOKEN,
+    access_token_secret=ACCESS_TOKEN_SECRET
+)
+
+TRACKER_FILE = "posted_stories.json"
+
+# --- 2. EXPANDED UK RSS FEED SOURCES ---
+RSS_FEEDS_UK = {
+    "london-se": [
+        "https://feeds.bbci.co.uk/news/england/london/rss.xml",
+        "https://www.standard.co.uk/news/london/rss"
+    ],
+    "scotland": [
+        "https://feeds.bbci.co.uk/news/scotland/rss.xml",
+        "https://www.scotsman.com/news/rss"
+    ],
+    "wales": [
+        "https://feeds.bbci.co.uk/news/wales/rss.xml",
+        "https://www.walesonline.co.uk/news/rss.xml"
+    ],
+    "northern-ireland": [
+        "https://feeds.bbci.co.uk/news/northern_ireland/rss.xml",
+        "https://www.belfasttelegraph.co.uk/rss"
+    ],
+    "midlands": [
+        "https://feeds.bbci.co.uk/news/england/derbyshire_nottinghamshire/rss.xml",
+        "https://www.birminghammail.co.uk/news/?service=rss"
+    ],
+    "north-england": [
+        "https://feeds.bbci.co.uk/news/england/merseyside/rss.xml",
+        "https://www.manchestereveningnews.co.uk/news/?service=rss"
+    ],
+    "uk-politics": [
+        "https://feeds.bbci.co.uk/news/politics/rss.xml",
+        "https://www.theguardian.com/politics/rss"
+    ]
+}
+
+RSS_FEEDS_WORLD = {
+    "world-news": [
+        "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
+        "https://feeds.bbci.co.uk/news/world/us_and_canada/rss.xml"
+    ],
+    "europe": [
+        "https://feeds.bbci.co.uk/news/world/europe/rss.xml",
+        "https://www.politico.eu/feed/"
+    ],
+    "middle-east": [
+        "https://feeds.bbci.co.uk/news/world/middle_east/rss.xml"
+    ],
+    "asia": [
+        "https://feeds.bbci.co.uk/news/world/asia/rss.xml"
+    ]
+}
+
+# --- 3. TRACKING POSTED STORIES ---
+def load_posted_history():
+    if os.path.exists(TRACKER_FILE):
+        try:
+            with open(TRACKER_FILE, "r", encoding="utf-8") as f:
+                return set(json.load(f))
+        except Exception:
+            return set()
+    return set()
+
+def save_posted_history(posted_links):
+    with open(TRACKER_FILE, "w", encoding="utf-8") as f:
+        json.dump(list(posted_links), f, indent=2)
+
+# --- 4. FETCH ARTICLES ---
+def fetch_rss_articles(feed_dict):
+    regional_content = {}
+    for region, urls in feed_dict.items():
+        regional_content[region] = []
+        for url in urls:
+            try:
+                parsed_feed = feedparser.parse(url)
+                source_name = parsed_feed.feed.get('title', 'Source')
+                if " - " in source_name:
+                    source_name = source_name.split(" - ")[0]
+
+                for entry in parsed_feed.entries[:4]:
+                    regional_content[region].append({
+                        "title": entry.get("title", "Untitled Story"),
+                        "link": entry.get("link", "#"),
+                        "summary": entry.get("summary", "Read the full story at the source publication..."),
+                        "published": entry.get("published", "Recent"),
+                        "source": source_name.strip()
+                    })
+            except Exception as e:
+                print(f"Skipping feed due to error: {url} -> {e}")
+    return regional_content
+
+# --- 5. AUTOMATED X (TWITTER) POSTER ---
+def post_story_to_x():
+    print("\n[+] Checking feeds for a new story to tweet...")
+    posted_links = load_posted_history()
+    available_stories = []
+
+    for region, urls in RSS_FEEDS_UK.items():
+        for url in urls:
+            try:
+                feed = feedparser.parse(url)
+                source_name = feed.feed.get('title', 'UK News').split(" - ")[0]
+                for entry in feed.entries[:5]:
+                    link = entry.get("link", "")
+                    if link and link not in posted_links:
+                        available_stories.append({
+                            "title": entry.get("title", "Untitled Story"),
+                            "link": link,
+                            "source": source_name.strip()
+                        })
+            except Exception as e:
+                print(f"Error reading feed for X: {e}")
+
+    if not available_stories:
+        print("[-] No new unposted stories found.")
+        return
+
+    story = random.choice(available_stories)
+    tweet_text = f"{story['title']}\n\nVia {story['source']}: {story['link']}"
+
+    try:
+        response = client.create_tweet(text=tweet_text)
+        print(f"[✓] Successfully posted to X! (Tweet ID: {response.data['id']})")
+        posted_links.add(story['link'])
+        save_posted_history(posted_links)
+    except Exception as e:
+        print(f"[!] Failed to post to X: {e}")
+
+# --- 6. COMMON CSS STYLES WITH STICKY SUB-NAV ---
+CSS_STYLES = """
         :root {
             --bg-cream: #fbf9f5;
             --border-sharp: #111111;
@@ -46,7 +189,7 @@
         }
         .global-nav {
             max-width: 1350px;
-            margin: 0 auto 25px auto;
+            margin: 0 auto 15px auto;
             padding: 10px 0;
             text-align: center;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -61,9 +204,39 @@
             font-weight: 700;
             margin: 0 12px;
         }
-        .global-nav a:hover {
+        .global-nav a:hover, .global-nav a.active {
             text-decoration: underline;
             color: #b22222;
+        }
+        /* Sticky Sub-Navigation Panel for Regions */
+        .sticky-subnav {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background-color: var(--bg-cream);
+            max-width: 1350px;
+            margin: 0 auto 25px auto;
+            padding: 12px 0;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            overflow-x: auto;
+            white-space: nowrap;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid var(--border-sharp);
+            border-top: 1px solid #ddd;
+        }
+        .sticky-subnav a {
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 700;
+        }
+        .sticky-subnav a:hover {
+            color: #b22222;
+            text-decoration: underline;
         }
         .interactive-map-wrapper {
             max-width: 1350px;
@@ -191,7 +364,40 @@
             margin: 0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
-    </style>
+"""
+
+def render_stories_grid(articles):
+    if not articles:
+        return "<p style='padding: 10px;'>No current feed items available.</p>"
+    html = ""
+    for story in articles:
+        clean_summary = story['summary'].replace('<p>', '').replace('</p>', '')
+        html += f"""
+        <a href="{story['link']}" target="_blank" class="card-link">
+            <div class="card">
+                <div>
+                    <div class="meta-row">
+                        <span class="outlet-tag">{story['source']}</span>
+                        <span class="date">{story['published'][:10]}</span>
+                    </div>
+                    <h3 class="headline-title">{story['title']}</h3>
+                    <p>{clean_summary[:120]}...</p>
+                </div>
+            </div>
+        </a>
+        """
+    return html
+
+# --- 7. HTML BUILDERS ---
+def generate_uk_html():
+    articles_data = fetch_rss_articles(RSS_FEEDS_UK)
+    
+    html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>The Olit UK</title>
+    <style>{CSS_STYLES}</style>
 </head>
 <body>
     <div class="header-container">
@@ -202,407 +408,92 @@
     </div>
 
     <nav class="global-nav">
-        <a href="index.html" style="text-decoration: underline; color: #b22222;">The Olit UK</a> • 
-        <a href="world.html" style="">The Olit World</a> • 
-        <a href="discussion.html" style="">The Olit Discussion</a>
+        <a href="index.html" class="active">The Olit UK</a> • 
+        <a href="world.html">The Olit World</a> • 
+        <a href="discussion.html">Discussion Desk</a>
     </nav>
 
-    
-            <div class="interactive-map-wrapper">
-                <div class="map-instruction">Click directly on any UK region to jump to its feeds</div>
-                <div class="map-container">
-                    <img src="images/olituk.jpg" alt="UK Interactive Map">
-                    <a href="#london-se" title="London & South East"><div class="continent-hotspot" style="top: 60%; left: 55%; width: 25%; height: 25%;"></div></a>
-                    <a href="#scotland" title="Scotland"><div class="continent-hotspot" style="top: 10%; left: 35%; width: 35%; height: 28%;"></div></a>
-                    <a href="#wales" title="Wales"><div class="continent-hotspot" style="top: 55%; left: 25%; width: 20%; height: 25%;"></div></a>
-                    <a href="#northern-ireland" title="Northern Ireland"><div class="continent-hotspot" style="top: 35%; left: 15%; width: 18%; height: 20%;"></div></a>
-                    <a href="#midlands" title="Midlands"><div class="continent-hotspot" style="top: 45%; left: 42%; width: 22%; height: 18%;"></div></a>
-                    <a href="#north-england" title="North of England"><div class="continent-hotspot" style="top: 28%; left: 38%; width: 28%; height: 20%;"></div></a>
-                    <a href="#uk-politics" title="UK Politics"><div class="continent-hotspot" style="top: 75%; left: 40%; width: 25%; height: 15%;"></div></a>
-                </div>
-            </div>
-    
-            <div class="photo-showcase-container">
-                <div class="photo-showcase-header">
-                    <span>Photo: UK Prime Minister, Andy Burnham, at U.N General Assembly</span>
-                    <span style="font-family: monospace; color: var(--text-muted);">Archive</span>
-                </div>
-                <div class="photo-main-frame"><img src="images/burnham.jpg" alt="Burnham Dispatch"></div>
-            </div>
-    
-            <div class="region-section" id="london-se">
-                <div class="region-header">London & South East</div>
-                <div class="stories-grid">
-        <a href="https://www.bbc.co.uk/news/articles/cmze4zk4d789o?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
-            <div class="card">
-                <div>
-                    <div class="meta-row">
-                        <span class="outlet-tag">BBC News</span>
-                        <span class="date">Thu, 05 No</span>
-                    </div>
-                    <h3 class="headline-title">Drunk and dangerous e-bike riders face on-the-spot fines under crackdown</h3>
-                    <p>A consultation will consider fines and other ways to clamp down on dangerous e-bike riders.</p>
-                </div>
-            </div>
-        </a>
-        <a href="https://www.bbc.co.uk/news/articles/cmgqw51gdnzyo?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
-            <div class="card">
-                <div>
-                    <div class="meta-row">
-                        <span class="outlet-tag">BBC News</span>
-                        <span class="date">Thu, 05 No</span>
-                    </div>
-                    <h3 class="headline-title">Why do veterinary fees and sausage rolls vary in price across London?</h3>
-                    <p>Location is not just the only factor on why prices differ across London, as Anna O'Neill finds out.</p>
-                </div>
-            </div>
-        </a>
-        <a href="https://www.standard.co.uk/news/london/euston-station-tube-hs2-high-speed-line-upgrade-b1303640.html" target="_blank" class="card-link">
-            <div class="card">
-                <div>
-                    <div class="meta-row">
-                        <span class="outlet-tag">The Standard London</span>
-                        <span class="date">Thu, 05 No</span>
-                    </div>
-                    <h3 class="headline-title">'Enormous project' moving ahead to upgrade major London station for HS2 line, says rail minister</h3>
-                    <p><p>The station is ‘now essential’ for Britain’s high speed line, explains Lord Hendy </p></p>
-                </div>
-            </div>
-        </a>
-        <a href="https://www.standard.co.uk/news/london/bus-crash-south-london-morden-tfl-b1303659.html" target="_blank" class="card-link">
-            <div class="card">
-                <div>
-                    <div class="meta-row">
-                        <span class="outlet-tag">The Standard London</span>
-                        <span class="date">Thu, 05 No</span>
-                    </div>
-                    <h3 class="headline-title">Five London buses crash into each other outside Tube station causing traffic 'chaos'</h3>
-                    <p><p>The crash on London Road near Morden Station resulted in the entire bus terminus being blocked</p></p>
-                </div>
-            </div>
-        </a></div>
-            </div>
-            <div class="region-section" id="scotland">
-                <div class="region-header">Scotland</div>
-                <div class="stories-grid">
-        <a href="https://www.bbc.co.uk/news/articles/cm8xzkkd72pro?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
-            <div class="card">
-                <div>
-                    <div class="meta-row">
-                        <span class="outlet-tag">BBC News</span>
-                        <span class="date">Thu, 05 No</span>
-                    </div>
-                    <h3 class="headline-title">Family pay tribute to 'ray of sunshine' daughter killed by bus</h3>
-                    <p>Sophia Aitken died on Tuesday after being struck by a Stagecoach bus at Lauchlan Way in Kilwinning.</p>
-                </div>
-            </div>
-        </a>
-        <a href="https://www.bbc.co.uk/news/articles/cj93zv4dv9rro?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
-            <div class="card">
-                <div>
-                    <div class="meta-row">
-                        <span class="outlet-tag">BBC News</span>
-                        <span class="date">Thu, 05 No</span>
-                    </div>
-                    <h3 class="headline-title">Police to escort fire crews in latest crackdown on Bonfire Night disorder</h3>
-                    <p>As many as 1,700 officers could be deployed in the biggest Police Scotland operation since last year's visit by Presiden...</p>
-                </div>
-            </div>
-        </a>
-        <a href="https://www.scotsman.com/news/transport/bomb-threats-disrupt-multiple-flights-across-europe-9331747" target="_blank" class="card-link">
-            <div class="card">
-                <div>
-                    <div class="meta-row">
-                        <span class="outlet-tag">The Scotsman News</span>
-                        <span class="date">Thu, 05 No</span>
-                    </div>
-                    <h3 class="headline-title">'Bomb threats' disrupt multiple flights across Europe</h3>
-                    <p><p>At least 12 services including one from UK involved</p></p>
-                </div>
-            </div>
-        </a>
-        <a href="https://www.scotsman.com/news/suckler-beef-producers-deserve-better-from-our-government-9331333" target="_blank" class="card-link">
-            <div class="card">
-                <div>
-                    <div class="meta-row">
-                        <span class="outlet-tag">The Scotsman News</span>
-                        <span class="date">Thu, 05 No</span>
-                    </div>
-                    <h3 class="headline-title">​Suckler beef producers deserve  better from our government</h3>
-                    <p>The question is whether decisions are being made on sound evidence</p>
-                </div>
-            </div>
-        </a></div>
-            </div>
-                <div class="photo-showcase-container">
-                    <div class="photo-showcase-header">
-                        <span>Photo: North Sea Energy & Infrastructure</span>
-                        <span style="font-family: monospace; color: var(--text-muted);">Archive</span>
-                    </div>
-                    <div class="photo-main-frame">
-                        <img src="images/northe_sea_gas.jpg" alt="North Sea Gas Infrastructure">
-                    </div>
-                </div>
-            <div class="region-section" id="wales">
-                <div class="region-header">Wales</div>
-                <div class="stories-grid">
-        <a href="https://www.bbc.co.uk/news/articles/cv62kwg0k038o?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
-            <div class="card">
-                <div>
-                    <div class="meta-row">
-                        <span class="outlet-tag">BBC News</span>
-                        <span class="date">Thu, 05 No</span>
-                    </div>
-                    <h3 class="headline-title">£200m taxpayer-funded trains sit barely used for three years</h3>
-                    <p>The final piece in a £2bn rail project is late, with less than half of the trains tested.</p>
-                </div>
-            </div>
-        </a>
-        <a href="https://www.bbc.co.uk/news/articles/cmn068j9z4w3o?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
-            <div class="card">
-                <div>
-                    <div class="meta-row">
-                        <span class="outlet-tag">BBC News</span>
-                        <span class="date">Thu, 05 No</span>
-                    </div>
-                    <h3 class="headline-title">Surreal moment Tarantino and Kylie Minogue came to my hometown to star in my new film</h3>
-                    <p>The Pulp Fiction director and Spinning Around singer caused a stir in a Welsh seaside town.</p>
-                </div>
-            </div>
-        </a>
-        <a href="https://www.walesonline.co.uk/news/uk-news/multiple-planes-diverted-after-bomb-34866095" target="_blank" class="card-link">
-            <div class="card">
-                <div>
-                    <div class="meta-row">
-                        <span class="outlet-tag">WalesOnline</span>
-                        <span class="date">Thu, 5 Nov</span>
-                    </div>
-                    <h3 class="headline-title">Multiple planes diverted after 'bomb threats' made to European flights with fighter jets scrambled</h3>
-                    <p>Fighter jets have reportedly scrambled to the skies to assist planes that have received bomb threats</p>
-                </div>
-            </div>
-        </a>
-        <a href="https://www.walesonline.co.uk/whats-on/travel/adults-only-campsite-named-best-34865198" target="_blank" class="card-link">
-            <div class="card">
-                <div>
-                    <div class="meta-row">
-                        <span class="outlet-tag">WalesOnline</span>
-                        <span class="date">Thu, 5 Nov</span>
-                    </div>
-                    <h3 class="headline-title">Adults only campsite named best in Wales and 'unlike anywhere else' you'll find</h3>
-                    <p>The Wales winner is set within 20 acres of breathtaking landscapes with 360-degree views of the Welsh countryside</p>
-                </div>
-            </div>
-        </a></div>
-            </div>
-            <div class="region-section" id="northern-ireland">
-                <div class="region-header">Northern Ireland</div>
-                <div class="stories-grid">
-        <a href="https://www.bbc.co.uk/news/articles/cky93zxx3l4eo?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
-            <div class="card">
-                <div>
-                    <div class="meta-row">
-                        <span class="outlet-tag">BBC News</span>
-                        <span class="date">Thu, 05 No</span>
-                    </div>
-                    <h3 class="headline-title">No shoot-to-kill missions against IRA, says former SAS officer</h3>
-                    <p>The soldier is speaking out now because of the government's draft law to deal with the legacy of the Troubles.</p>
-                </div>
-            </div>
-        </a>
-        <a href="https://www.bbc.co.uk/news/articles/c35yn7p4970go?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
-            <div class="card">
-                <div>
-                    <div class="meta-row">
-                        <span class="outlet-tag">BBC News</span>
-                        <span class="date">Thu, 05 No</span>
-                    </div>
-                    <h3 class="headline-title">Former permanent secretary alleges he was 'bullied' by education minister, says MLA</h3>
-                    <p>Sinn Féin assembly member Pat Sheehan made the claim during a committee hearing earlier this week.</p>
-                </div>
-            </div>
-        </a>
-        <a href="https://www.belfasttelegraph.co.uk/business/money/bank-of-england-set-to-hike-interest-rates-to-4-to-tackle-rising-inflation/a/164093510.html" target="_blank" class="card-link">
-            <div class="card">
-                <div>
-                    <div class="meta-row">
-                        <span class="outlet-tag">Belfast Telegraph</span>
-                        <span class="date">Thu, 05 No</span>
-                    </div>
-                    <h3 class="headline-title">Bank of England set to hike interest rates to 4% to tackle rising inflation</h3>
-                    <p>Read full story...</p>
-                </div>
-            </div>
-        </a>
-        <a href="https://www.belfasttelegraph.co.uk/news/republic-of-ireland/multiple-reported-bomb-threats-to-flights-for-second-time-in-a-week/a/164125797.html" target="_blank" class="card-link">
-            <div class="card">
-                <div>
-                    <div class="meta-row">
-                        <span class="outlet-tag">Belfast Telegraph</span>
-                        <span class="date">Thu, 05 No</span>
-                    </div>
-                    <h3 class="headline-title">Multiple reported bomb threats to flights for second time in a week</h3>
-                    <p>Read full story...</p>
-                </div>
-            </div>
-        </a></div>
-            </div>
-            <div class="region-section" id="midlands">
-                <div class="region-header">Midlands</div>
-                <div class="stories-grid">
-        <a href="https://www.bbc.co.uk/news/articles/cmy4x5ekn772o?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
-            <div class="card">
-                <div>
-                    <div class="meta-row">
-                        <span class="outlet-tag">BBC News</span>
-                        <span class="date">Thu, 05 No</span>
-                    </div>
-                    <h3 class="headline-title">'A man in a balaclava chased me, but I won't stop running'</h3>
-                    <p>An MS survivor finds strength in running community after frightening ordeal.</p>
-                </div>
-            </div>
-        </a>
-        <a href="https://www.bbc.co.uk/news/articles/cmvgx8zvywp8o?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
-            <div class="card">
-                <div>
-                    <div class="meta-row">
-                        <span class="outlet-tag">BBC News</span>
-                        <span class="date">Thu, 05 No</span>
-                    </div>
-                    <h3 class="headline-title">Empty chairs artwork pays tribute to the fallen</h3>
-                    <p>The installation features 219 miniature chairs to represent every name on Nantwich's war memorial.</p>
-                </div>
-            </div>
-        </a>
-        <a href="https://www.birminghammail.co.uk/whats-on/shopping/avant-skincare-odyssey-gift-set-34861501" target="_blank" class="card-link">
-            <div class="card">
-                <div>
-                    <div class="meta-row">
-                        <span class="outlet-tag">Birmingham Live</span>
-                        <span class="date">Thu, 5 Nov</span>
-                    </div>
-                    <h3 class="headline-title">'Beautiful' £443 skincare gift set drops to £59 including £119 anti-ageing serum</h3>
-                    <p>'Such a beautiful gift set. The little hanging loops are a lovely detail'</p>
-                </div>
-            </div>
-        </a>
-        <a href="https://www.birminghammail.co.uk/whats-on/whats-on-news/birmingham-christmas-market-live-updates-34861656" target="_blank" class="card-link">
-            <div class="card">
-                <div>
-                    <div class="meta-row">
-                        <span class="outlet-tag">Birmingham Live</span>
-                        <span class="date">Thu, 5 Nov</span>
-                    </div>
-                    <h3 class="headline-title">Birmingham Christmas Market LIVE updates on opening day, price rises and what to expect</h3>
-                    <p>As well as the launch of the German Market 2026, Ice Skate Birmingham, the Big Wheel and Christmas in Cathedral Square a...</p>
-                </div>
-            </div>
-        </a></div>
-            </div>
-            <div class="region-section" id="north-england">
-                <div class="region-header">North of England</div>
-                <div class="stories-grid">
-        <a href="https://www.bbc.co.uk/news/articles/cmq8nj1w752do?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
-            <div class="card">
-                <div>
-                    <div class="meta-row">
-                        <span class="outlet-tag">BBC News</span>
-                        <span class="date">Thu, 05 No</span>
-                    </div>
-                    <h3 class="headline-title">Boy, 17, charged with murder over  stabbing death</h3>
-                    <p>The two are due to appear in court later in connection with the death of 34-year-old Adrian Brown.</p>
-                </div>
-            </div>
-        </a>
-        <a href="https://www.bbc.co.uk/news/articles/c69vz91lvp1ko?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
-            <div class="card">
-                <div>
-                    <div class="meta-row">
-                        <span class="outlet-tag">BBC News</span>
-                        <span class="date">Thu, 05 No</span>
-                    </div>
-                    <h3 class="headline-title">Free community library 'unrecognisable' after fire</h3>
-                    <p>Residents and firms in Macclesfield are raising money to replace the free library and its books.</p>
-                </div>
-            </div>
-        </a>
-        <a href="https://www.manchestereveningnews.co.uk/news/uk-news/bomb-threats-live-several-planes-34865906" target="_blank" class="card-link">
-            <div class="card">
-                <div>
-                    <div class="meta-row">
-                        <span class="outlet-tag">MEN</span>
-                        <span class="date">Thu, 5 Nov</span>
-                    </div>
-                    <h3 class="headline-title">Bomb threats LIVE as several planes diverted and making emergency landings across Europe</h3>
-                    <p>Multiple flights, including one from London, have been bit by threats just two days after seven flights were targeted in...</p>
-                </div>
-            </div>
-        </a>
-        <a href="https://www.manchestereveningnews.co.uk/news/uk-news/andy-burnham-government-confirm-15-34865863" target="_blank" class="card-link">
-            <div class="card">
-                <div>
-                    <div class="meta-row">
-                        <span class="outlet-tag">MEN</span>
-                        <span class="date">Thu, 5 Nov</span>
-                    </div>
-                    <h3 class="headline-title">Andy Burnham government confirm £15 million plan to help UK children in move inspired by Dolly Parton</h3>
-                    <p>The investment is seeking to help build children’s confidence before starting school</p>
-                </div>
-            </div>
-        </a></div>
-            </div>
-            <div class="region-section" id="uk-politics">
-                <div class="region-header">UK Politics & National</div>
-                <div class="stories-grid">
-        <a href="https://www.bbc.co.uk/news/articles/cqdr872jkk7vo?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
-            <div class="card">
-                <div>
-                    <div class="meta-row">
-                        <span class="outlet-tag">BBC News</span>
-                        <span class="date">Thu, 05 No</span>
-                    </div>
-                    <h3 class="headline-title">UK commits to 'time-bound' talks on slavery apology</h3>
-                    <p>British diplomats are looking to offer reassurance that there is a sense of urgency to deal with the issue, even if a da...</p>
-                </div>
-            </div>
-        </a>
-        <a href="https://www.bbc.co.uk/news/articles/c615j8pw1y81o?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
-            <div class="card">
-                <div>
-                    <div class="meta-row">
-                        <span class="outlet-tag">BBC News</span>
-                        <span class="date">Wed, 04 No</span>
-                    </div>
-                    <h3 class="headline-title">Chris Mason: The US elections will change Trump - how will Burnham react?</h3>
-                    <p>The big question for the British government is does defeat at home make it more likely that President Trump gets angrier...</p>
-                </div>
-            </div>
-        </a>
-        <a href="https://www.theguardian.com/politics/live/2026/nov/05/uk-politics-latest-news-updates-andy-burnham-eu-brexit-labour" target="_blank" class="card-link">
-            <div class="card">
-                <div>
-                    <div class="meta-row">
-                        <span class="outlet-tag">Politics | The Guardian</span>
-                        <span class="date">Thu, 05 No</span>
-                    </div>
-                    <h3 class="headline-title">UK can avoid euro but must accept free movement to rejoin EU, says former top Brexit negotiator – UK politics live</h3>
-                    <p><p>Michel Barnier says Britain could avoid having to join the single currency, but free movement is non-negotiable</p><p...</p>
-                </div>
-            </div>
-        </a>
-        <a href="https://www.theguardian.com/world/2026/nov/05/activists-across-europe-protests-ai-against-datacentres" target="_blank" class="card-link">
-            <div class="card">
-                <div>
-                    <div class="meta-row">
-                        <span class="outlet-tag">Politics | The Guardian</span>
-                        <span class="date">Thu, 05 No</span>
-                    </div>
-                    <h3 class="headline-title">Activists across Europe prepare two days of protests against datacentres</h3>
-                    <p><p>More than 100 campaign groups will join together in 15 countries this week to call for a halt to major AI projects</p...</p>
-                </div>
-            </div>
-        </a></div>
-            </div>
+    <!-- Sticky Regional Navigation Panel -->
+    <div class="sticky-subnav">
+        <a href="#london-se">London & SE</a> • 
+        <a href="#scotland">Scotland</a> • 
+        <a href="#wales">Wales</a> • 
+        <a href="#northern-ireland">Northern Ireland</a> • 
+        <a href="#midlands">Midlands</a> • 
+        <a href="#north-england">North</a> • 
+        <a href="#uk-politics">UK Politics</a>
+    </div>
 
+    <div class="interactive-map-wrapper">
+        <div class="map-instruction">Click directly on any UK region to jump to its feeds</div>
+        <div class="map-container">
+            <img src="images/olituk.jpg" alt="UK Interactive Map">
+            <a href="#london-se" title="London & South East"><div class="continent-hotspot" style="top: 60%; left: 55%; width: 25%; height: 25%;"></div></a>
+            <a href="#scotland" title="Scotland"><div class="continent-hotspot" style="top: 10%; left: 35%; width: 35%; height: 28%;"></div></a>
+            <a href="#wales" title="Wales"><div class="continent-hotspot" style="top: 55%; left: 25%; width: 20%; height: 25%;"></div></a>
+            <a href="#northern-ireland" title="Northern Ireland"><div class="continent-hotspot" style="top: 35%; left: 15%; width: 18%; height: 20%;"></div></a>
+            <a href="#midlands" title="Midlands"><div class="continent-hotspot" style="top: 45%; left: 42%; width: 22%; height: 18%;"></div></a>
+            <a href="#north-england" title="North of England"><div class="continent-hotspot" style="top: 28%; left: 38%; width: 28%; height: 20%;"></div></a>
+            <a href="#uk-politics" title="UK Politics"><div class="continent-hotspot" style="top: 75%; left: 40%; width: 25%; height: 15%;"></div></a>
+        </div>
+    </div>
+
+    <div class="photo-showcase-container">
+        <div class="photo-showcase-header">
+            <span>Photo: UK Prime Minister, Andy Burnham, at U.N General Assembly</span>
+            <span style="font-family: monospace; color: var(--text-muted);">Archive</span>
+        </div>
+        <div class="photo-main-frame"><img src="images/burnham.jpg" alt="Burnham Dispatch"></div>
+    </div>
+
+    <div class="region-section" id="london-se">
+        <div class="region-header">London & South East</div>
+        <div class="stories-grid">{render_stories_grid(articles_data.get('london-se', []))}</div>
+    </div>
+
+    <div class="region-section" id="scotland">
+        <div class="region-header">Scotland</div>
+        <div class="stories-grid">{render_stories_grid(articles_data.get('scotland', []))}</div>
+    </div>
+
+    <div class="photo-showcase-container">
+        <div class="photo-showcase-header">
+            <span>Photo: North Sea Energy & Infrastructure</span>
+            <span style="font-family: monospace; color: var(--text-muted);">Archive</span>
+        </div>
+        <div class="photo-main-frame"><img src="images/northe_sea_gas.jpg" alt="North Sea Gas Infrastructure"></div>
+    </div>
+
+    <div class="region-section" id="wales">
+        <div class="region-header">Wales</div>
+        <div class="stories-grid">{render_stories_grid(articles_data.get('wales', []))}</div>
+    </div>
+
+    <div class="region-section" id="northern-ireland">
+        <div class="region-header">Northern Ireland</div>
+        <div class="stories-grid">{render_stories_grid(articles_data.get('northern-ireland', []))}</div>
+    </div>
+
+    <div class="region-section" id="midlands">
+        <div class="region-header">Midlands</div>
+        <div class="stories-grid">{render_stories_grid(articles_data.get('midlands', []))}</div>
+    </div>
+
+    <div class="region-section" id="north-england">
+        <div class="region-header">North of England</div>
+        <div class="stories-grid">{render_stories_grid(articles_data.get('north-england', []))}</div>
+    </div>
+
+    <div class="region-section" id="uk-politics">
+        <div class="region-header">UK Politics & National</div>
+        <div class="stories-grid">{render_stories_grid(articles_data.get('uk-politics', []))}</div>
+    </div>
 </body>
 </html>
+"""
+    with open("index.html", "w", encoding="utf-8") as f:
+        f.write(html)
+    print("[✓] Successfully built index.html with sticky regional panel & updated feeds!")
+
+if __name__ == "__main__":
+    generate_uk_html()

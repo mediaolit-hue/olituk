@@ -195,7 +195,7 @@
 <body>
 
     <div class="header-container">
-        <h1 class="brand-title">The Olit UK</h1>
+        <h1 class="brand-title">The Olit Discussion</h1>
     </div>
 
     <nav class="global-nav">
@@ -209,7 +209,7 @@
         
         <!-- New Thread Form -->
         <div class="new-thread-box">
-            <h3>Start a New Thread (Max 5 Active Threads)</h3>
+            <h3>Start a New Thread (Max 15 Active Threads)</h3>
             <div class="form-group">
                 <label>Subject</label>
                 <input type="text" id="thread-subject" placeholder="Thread topic...">
@@ -251,7 +251,7 @@
         const db = firebase.firestore();
 
         // --- 2. STATE VARIABLES ---
-        const MAX_THREADS = 5;
+        const MAX_THREADS = 15;
         const ADMIN_PASSCODE = "OperationEuclid1990"; // CHANGE THIS TO YOUR SECRET PASSWORD
         let isAdmin = false;
         let threads = [];

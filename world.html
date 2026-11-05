@@ -102,30 +102,6 @@
             background-color: var(--accent-hover);
             border-color: #b22222;
         }
-        .photo-showcase-container {
-            max-width: 1350px;
-            margin: 0 auto 45px auto;
-        }
-        .photo-showcase-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            border-bottom: 1px solid var(--border-sharp);
-            padding-bottom: 10px;
-            margin-bottom: 15px;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-size: 0.85rem;
-            font-weight: 700;
-        }
-        .photo-main-frame img {
-            width: 100%;
-            height: auto;
-            max-height: 850px;
-            object-fit: contain;
-            display: block;
-        }
         .region-section {
             max-width: 1350px;
             margin: 0 auto 40px auto;
@@ -196,156 +172,178 @@
 <body>
     <div class="header-container">
         <div>
-            <div class="brand-subtitle">Events. Stories. Perspectives.</div>
-            <h1 class="brand-title">The Olit UK</h1>
+            <div class="brand-subtitle">Global Events. Stories. Perspectives.</div>
+            <h1 class="brand-title">The Olit World</h1>
         </div>
     </div>
 
     <nav class="global-nav">
-        <a href="index.html" style="">The Olit UK</a> • 
+        <a href="index.html">The Olit UK</a> • 
         <a href="world.html" style="text-decoration: underline; color: #b22222;">The Olit World</a> • 
-        <a href="discussion.html" style="">Discussion Desk</a>
+        <a href="discussion.html">Discussion Desk</a>
     </nav>
 
-    
-    
-    
-            <div class="region-section" id="world-news">
-                <div class="region-header">Global Headlines</div>
-                <div class="stories-grid">
-        <a href="https://www.bbc.co.uk/news/articles/crz98zqkz7z0o?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
-            <div class="card">
-                <div>
-                    <div class="meta-row">
-                        <span class="outlet-tag">BBC News</span>
-                        <span class="date">Thu, 05 No</span>
+    <!-- Interactive World Map Section -->
+    <div class="interactive-map-wrapper">
+        <div class="map-instruction">Select a region on the map to explore dispatches</div>
+        <div class="map-container">
+            <img src="images/watercolor-world-map-irina-march.jpg" alt="The Olit World Map">
+            
+            <!-- Hotspots mapped over the world map image matching your sections -->
+            <a href="#world-news" class="continent-hotspot" style="top: 20%; left: 15%; width: 25%; height: 35%;" title="Global Headlines"></a>
+            <a href="#europe" class="continent-hotspot" style="top: 25%; left: 45%; width: 12%; height: 20%;" title="Europe Dispatch"></a>
+            <a href="#middle-east" class="continent-hotspot" style="top: 38%; left: 55%; width: 15%; height: 22%;" title="Middle East Desk"></a>
+            <a href="#asia" class="continent-hotspot" style="top: 25%; left: 70%; width: 22%; height: 45%;" title="Asia-Pacific Region"></a>
+        </div>
+    </div>
+
+    <!-- Global Headlines Section -->
+    <div class="region-section" id="world-news">
+        <div class="region-header">Global Headlines</div>
+        <div class="stories-grid">
+            <a href="https://www.bbc.co.uk/news/articles/crz98zqkz7z0o?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
+                <div class="card">
+                    <div>
+                        <div class="meta-row">
+                            <span class="outlet-tag">BBC News</span>
+                            <span class="date">Thu, 05 Nov</span>
+                        </div>
+                        <h3 class="headline-title">Vance walks Trump tightrope with scathing election critique blaming Iran war</h3>
+                        <p>The vice-president's blunt assessment of Republican election defeat marked one of the sharpest breaks...</p>
                     </div>
-                    <h3 class="headline-title">Vance walks Trump tightrope with scathing election critique blaming Iran war</h3>
-                    <p>The vice-president's blunt assessment of Republican election defeat marked one of the sharpest breaks with a sitting pre...</p>
                 </div>
-            </div>
-        </a>
-        <a href="https://www.bbc.co.uk/news/articles/cq1kdgnn2xdeo?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
-            <div class="card">
-                <div>
-                    <div class="meta-row">
-                        <span class="outlet-tag">BBC News</span>
-                        <span class="date">Wed, 04 No</span>
+            </a>
+            <a href="https://www.bbc.co.uk/news/articles/cq1kdgnn2xdeo?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
+                <div class="card">
+                    <div>
+                        <div class="meta-row">
+                            <span class="outlet-tag">BBC News</span>
+                            <span class="date">Wed, 04 Nov</span>
+                        </div>
+                        <h3 class="headline-title">What Democrats can and can't do with their new power after taking Congress</h3>
+                        <p>Democrats can vote legislation through. But Trump still has veto power.</p>
                     </div>
-                    <h3 class="headline-title">What Democrats can and can't do with their new power after taking Congress</h3>
-                    <p>Democrats can vote legislation through. But Trump still has veto power.</p>
                 </div>
-            </div>
-        </a>
-        <a href="https://www.theguardian.com/world/2026/nov/04/british-healthcare-worker-ebola-evacuated-drc-to-uk-document-shows" target="_blank" class="card-link">
-            <div class="card">
-                <div>
-                    <div class="meta-row">
-                        <span class="outlet-tag">World news | The Guardian</span>
-                        <span class="date">Wed, 04 No</span>
+            </a>
+            <a href="https://www.theguardian.com/world/2026/nov/04/british-healthcare-worker-ebola-evacuated-drc-to-uk-document-shows" target="_blank" class="card-link">
+                <div class="card">
+                    <div>
+                        <div class="meta-row">
+                            <span class="outlet-tag">World news | The Guardian</span>
+                            <span class="date">Wed, 04 Nov</span>
+                        </div>
+                        <h3 class="headline-title">British healthcare worker with Ebola evacuated from DR Congo to UK</h3>
+                        <p>Patient is in stable condition and will be transferred to a specialist infectious disease unit.</p>
                     </div>
-                    <h3 class="headline-title">British healthcare worker with Ebola evacuated from DR Congo to UK</h3>
-                    <p><p>Patient is ⁠in ​stable condition and will be transferred to a specialist ‘high consequence’ infectious disease unit</...</p>
                 </div>
-            </div>
-        </a>
-        <a href="https://www.theguardian.com/world/2026/nov/04/anc-south-africa-local-elections-water-outages-power-cuts" target="_blank" class="card-link">
-            <div class="card">
-                <div>
-                    <div class="meta-row">
-                        <span class="outlet-tag">World news | The Guardian</span>
-                        <span class="date">Wed, 04 No</span>
+            </a>
+            <a href="https://www.theguardian.com/world/2026/nov/04/anc-south-africa-local-elections-water-outages-power-cuts" target="_blank" class="card-link">
+                <div class="card">
+                    <div>
+                        <div class="meta-row">
+                            <span class="outlet-tag">World news | The Guardian</span>
+                            <span class="date">Wed, 04 Nov</span>
+                        </div>
+                        <h3 class="headline-title">ANC faces anger over poor services as South Africans vote in local elections</h3>
+                        <p>Party expected to get less than a third of the vote amid frustration over water outages and power cuts.</p>
                     </div>
-                    <h3 class="headline-title">ANC faces anger over poor services as South Africans vote in local elections</h3>
-                    <p><p>Party expected to get less than a third of the vote amid frustration over water outages and power cuts</p><p>The Afri...</p>
                 </div>
-            </div>
-        </a></div>
-            </div>
-            <div class="region-section" id="europe">
-                <div class="region-header">Europe Dispatch</div>
-                <div class="stories-grid">
-        <a href="https://www.bbc.co.uk/news/articles/ckx2qzv835pgo?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
-            <div class="card">
-                <div>
-                    <div class="meta-row">
-                        <span class="outlet-tag">BBC News</span>
-                        <span class="date">Thu, 05 No</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Europe Dispatch Section -->
+    <div class="region-section" id="europe">
+        <div class="region-header">Europe Dispatch</div>
+        <div class="stories-grid">
+            <a href="https://www.bbc.co.uk/news/articles/ckx2qzv835pgo?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
+                <div class="card">
+                    <div>
+                        <div class="meta-row">
+                            <span class="outlet-tag">BBC News</span>
+                            <span class="date">Thu, 05 Nov</span>
+                        </div>
+                        <h3 class="headline-title">France gears up for strikes and protests as unions promise national mobilisation</h3>
+                        <p>Five of France's unions have joined a wave of strikes and protests in a national day of action.</p>
                     </div>
-                    <h3 class="headline-title">France gears up for strikes and protests as unions promise national mobilisation</h3>
-                    <p>Five of France's unions have joined a wave of strikes and protests in a national day of action.</p>
                 </div>
-            </div>
-        </a>
-        <a href="https://www.bbc.co.uk/news/articles/cmpqg08nz3pqo?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
-            <div class="card">
-                <div>
-                    <div class="meta-row">
-                        <span class="outlet-tag">BBC News</span>
-                        <span class="date">Thu, 05 No</span>
+            </a>
+            <a href="https://www.bbc.co.uk/news/articles/cmpqg08nz3pqo?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
+                <div class="card">
+                    <div>
+                        <div class="meta-row">
+                            <span class="outlet-tag">BBC News</span>
+                            <span class="date">Thu, 05 Nov</span>
+                        </div>
+                        <h3 class="headline-title">Multiple European flights face bomb threats for second time this week</h3>
+                        <p>At least 12 flights across Europe have been affected on Thursday.</p>
                     </div>
-                    <h3 class="headline-title">Multiple European flights face bomb threats for second time this week</h3>
-                    <p>At least 12 flights across Europe have been affected on Thursday.</p>
                 </div>
-            </div>
-        </a></div>
-            </div>
-            <div class="region-section" id="middle-east">
-                <div class="region-header">Middle East Desk</div>
-                <div class="stories-grid">
-        <a href="https://www.bbc.co.uk/news/articles/c6d934npl9y8o?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
-            <div class="card">
-                <div>
-                    <div class="meta-row">
-                        <span class="outlet-tag">BBC News</span>
-                        <span class="date">Wed, 04 No</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Middle East Desk Section -->
+    <div class="region-section" id="middle-east">
+        <div class="region-header">Middle East Desk</div>
+        <div class="stories-grid">
+            <a href="https://www.bbc.co.uk/news/articles/c6d934npl9y8o?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
+                <div class="card">
+                    <div>
+                        <div class="meta-row">
+                            <span class="outlet-tag">BBC News</span>
+                            <span class="date">Wed, 04 Nov</span>
+                        </div>
+                        <h3 class="headline-title">Iran's chief negotiator says Americans voted 'no to war'</h3>
+                        <p>"We endorse this message," Mohammed Bagher Ghalibaf says, as Donald Trump acknowledges the conflict's role.</p>
                     </div>
-                    <h3 class="headline-title">Iran's chief negotiator says Americans voted 'no to war'</h3>
-                    <p>"We endorse this message," Mohammed Bagher Ghalibaf says, as Donald Trump acknowledges the conflict's role in the Republ...</p>
                 </div>
-            </div>
-        </a>
-        <a href="https://www.bbc.co.uk/news/articles/c6z98z5z91ppo?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
-            <div class="card">
-                <div>
-                    <div class="meta-row">
-                        <span class="outlet-tag">BBC News</span>
-                        <span class="date">Wed, 04 No</span>
+            </a>
+            <a href="https://www.bbc.co.uk/news/articles/c6z98z5z91ppo?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
+                <div class="card">
+                    <div>
+                        <div class="meta-row">
+                            <span class="outlet-tag">BBC News</span>
+                            <span class="date">Wed, 04 Nov</span>
+                        </div>
+                        <h3 class="headline-title">Israel's president begins consultations with parties after election deadlock</h3>
+                        <p>Herzog warns politicians that not every commitment can be fulfilled if they want to avoid another election.</p>
                     </div>
-                    <h3 class="headline-title">Israel's president begins consultations with parties after election deadlock</h3>
-                    <p>Herzog warns politicians that "not every commitment and promise can be fulfilled" if they want to avoid another election...</p>
                 </div>
-            </div>
-        </a></div>
-            </div>
-            <div class="region-section" id="asia">
-                <div class="region-header">Asia-Pacific Region</div>
-                <div class="stories-grid">
-        <a href="https://www.bbc.co.uk/news/articles/cwp9g3rlp8jlo?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
-            <div class="card">
-                <div>
-                    <div class="meta-row">
-                        <span class="outlet-tag">BBC News</span>
-                        <span class="date">Thu, 05 No</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Asia-Pacific Region Section -->
+    <div class="region-section" id="asia">
+        <div class="region-header">Asia-Pacific Region</div>
+        <div class="stories-grid">
+            <a href="https://www.bbc.co.uk/news/articles/cwp9g3rlp8jlo?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
+                <div class="card">
+                    <div>
+                        <div class="meta-row">
+                            <span class="outlet-tag">BBC News</span>
+                            <span class="date">Thu, 05 Nov</span>
+                        </div>
+                        <h3 class="headline-title">Joshua Wong, face of Hong Kong's pro-democracy protests, jailed for 10 years</h3>
+                        <p>Wong, 30, is among hundreds of Hongkongers detained under the controversial national security law.</p>
                     </div>
-                    <h3 class="headline-title">Joshua Wong, face of Hong Kong's pro-democracy protests, jailed for 10 years</h3>
-                    <p>Wong, 30, is among hundreds of Hongkongers detained under the controversial national security law.</p>
                 </div>
-            </div>
-        </a>
-        <a href="https://www.bbc.co.uk/news/articles/cw33kgj7nkemo?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
-            <div class="card">
-                <div>
-                    <div class="meta-row">
-                        <span class="outlet-tag">BBC News</span>
-                        <span class="date">Wed, 04 No</span>
+            </a>
+            <a href="https://www.bbc.co.uk/news/articles/cw33kgj7nkemo?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
+                <div class="card">
+                    <div>
+                        <div class="meta-row">
+                            <span class="outlet-tag">BBC News</span>
+                            <span class="date">Wed, 04 Nov</span>
+                        </div>
+                        <h3 class="headline-title">Typhoons batter East Asia as El Niño makes Pacific 'burn with fever'</h3>
+                        <p>Even for countries where typhoons are a way of life, the last few months have brought unusually wild weather.</p>
                     </div>
-                    <h3 class="headline-title">Typhoons batter East Asia as El Niño makes Pacific 'burn with fever'</h3>
-                    <p>Even for countries where typhoons are a way of life, the last few months have brought unusually wild weather.</p>
                 </div>
-            </div>
-        </a></div>
-            </div>
+            </a>
+        </div>
+    </div>
 
 </body>
 </html>

@@ -1,152 +1,9 @@
-import os
-import time
-import random
-import json
-import feedparser
-import tweepy
-import schedule
-
-# --- 1. X API CONFIGURATION ---
-API_KEY = "OCgWBrX9a6EBeRV0XZZNomc1f"
-API_SECRET = "4CMyhjC6pFqK1KaKjHFVhOPXWb0GdBM4B79GR4wA6NGrWSgIG6"
-ACCESS_TOKEN = "2117795255831482368-NIVIhMUc28BeGF7IIG50hoxTPUUmXr"
-ACCESS_TOKEN_SECRET = "Lv9eB3KzpuBLJ0bkxIAagZz6yPpXXAP4E2n9jjlSba1NZ"
-
-client = tweepy.Client(
-    consumer_key=API_KEY,
-    consumer_secret=API_SECRET,
-    access_token=ACCESS_TOKEN,
-    access_token_secret=ACCESS_TOKEN_SECRET
-)
-
-TRACKER_FILE = "posted_stories.json"
-
-# --- 2. EXPANDED UK RSS FEED SOURCES ---
-RSS_FEEDS_UK = {
-    "london-se": [
-        "https://feeds.bbci.co.uk/news/england/london/rss.xml",
-        "https://www.standard.co.uk/news/london/rss"
-    ],
-    "scotland": [
-        "https://feeds.bbci.co.uk/news/scotland/rss.xml",
-        "https://www.scotsman.com/news/rss"
-    ],
-    "wales": [
-        "https://feeds.bbci.co.uk/news/wales/rss.xml",
-        "https://www.walesonline.co.uk/news/rss.xml"
-    ],
-    "northern-ireland": [
-        "https://feeds.bbci.co.uk/news/northern_ireland/rss.xml",
-        "https://www.belfasttelegraph.co.uk/rss"
-    ],
-    "midlands": [
-        "https://feeds.bbci.co.uk/news/england/derbyshire_nottinghamshire/rss.xml",
-        "https://www.birminghammail.co.uk/news/?service=rss"
-    ],
-    "north-england": [
-        "https://feeds.bbci.co.uk/news/england/merseyside/rss.xml",
-        "https://www.manchestereveningnews.co.uk/news/?service=rss"
-    ],
-    "uk-politics": [
-        "https://feeds.bbci.co.uk/news/politics/rss.xml",
-        "https://www.theguardian.com/politics/rss"
-    ]
-}
-
-RSS_FEEDS_WORLD = {
-    "world-news": [
-        "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
-        "https://feeds.bbci.co.uk/news/world/us_and_canada/rss.xml"
-    ],
-    "europe": [
-        "https://feeds.bbci.co.uk/news/world/europe/rss.xml",
-        "https://www.politico.eu/feed/"
-    ],
-    "middle-east": [
-        "https://feeds.bbci.co.uk/news/world/middle_east/rss.xml"
-    ],
-    "asia": [
-        "https://feeds.bbci.co.uk/news/world/asia/rss.xml"
-    ]
-}
-
-# --- 3. TRACKING POSTED STORIES ---
-def load_posted_history():
-    if os.path.exists(TRACKER_FILE):
-        try:
-            with open(TRACKER_FILE, "r", encoding="utf-8") as f:
-                return set(json.load(f))
-        except Exception:
-            return set()
-    return set()
-
-def save_posted_history(posted_links):
-    with open(TRACKER_FILE, "w", encoding="utf-8") as f:
-        json.dump(list(posted_links), f, indent=2)
-
-# --- 4. FETCH ARTICLES ---
-def fetch_rss_articles(feed_dict):
-    regional_content = {}
-    for region, urls in feed_dict.items():
-        regional_content[region] = []
-        for url in urls:
-            try:
-                parsed_feed = feedparser.parse(url)
-                source_name = parsed_feed.feed.get('title', 'Source')
-                if " - " in source_name:
-                    source_name = source_name.split(" - ")[0]
-
-                for entry in parsed_feed.entries[:4]:
-                    regional_content[region].append({
-                        "title": entry.get("title", "Untitled Story"),
-                        "link": entry.get("link", "#"),
-                        "summary": entry.get("summary", "Read the full story at the source publication..."),
-                        "published": entry.get("published", "Recent"),
-                        "source": source_name.strip()
-                    })
-            except Exception as e:
-                print(f"Skipping feed due to error: {url} -> {e}")
-    return regional_content
-
-# --- 5. AUTOMATED X (TWITTER) POSTER ---
-def post_story_to_x():
-    print("\n[+] Checking feeds for a new story to tweet...")
-    posted_links = load_posted_history()
-    available_stories = []
-
-    for region, urls in RSS_FEEDS_UK.items():
-        for url in urls:
-            try:
-                feed = feedparser.parse(url)
-                source_name = feed.feed.get('title', 'UK News').split(" - ")[0]
-                for entry in feed.entries[:5]:
-                    link = entry.get("link", "")
-                    if link and link not in posted_links:
-                        available_stories.append({
-                            "title": entry.get("title", "Untitled Story"),
-                            "link": link,
-                            "source": source_name.strip()
-                        })
-            except Exception as e:
-                print(f"Error reading feed for X: {e}")
-
-    if not available_stories:
-        print("[-] No new unposted stories found.")
-        return
-
-    story = random.choice(available_stories)
-    tweet_text = f"{story['title']}\n\nVia {story['source']}: {story['link']}"
-
-    try:
-        response = client.create_tweet(text=tweet_text)
-        print(f"[✓] Successfully posted to X! (Tweet ID: {response.data['id']})")
-        posted_links.add(story['link'])
-        save_posted_history(posted_links)
-    except Exception as e:
-        print(f"[!] Failed to post to X: {e}")
-
-# --- 6. COMMON CSS STYLES WITH STICKY SUB-NAV ---
-CSS_STYLES = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>The Olit UK</title>
+    <style>
         :root {
             --bg-cream: #fbf9f5;
             --border-sharp: #111111;
@@ -208,7 +65,7 @@ CSS_STYLES = """
             text-decoration: underline;
             color: #b22222;
         }
-        /* Sticky Sub-Navigation Panel for Regions */
+        /* Sticky Regional Sub-Navigation Panel */
         .sticky-subnav {
             position: sticky;
             top: 0;
@@ -364,40 +221,7 @@ CSS_STYLES = """
             margin: 0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
-"""
-
-def render_stories_grid(articles):
-    if not articles:
-        return "<p style='padding: 10px;'>No current feed items available.</p>"
-    html = ""
-    for story in articles:
-        clean_summary = story['summary'].replace('<p>', '').replace('</p>', '')
-        html += f"""
-        <a href="{story['link']}" target="_blank" class="card-link">
-            <div class="card">
-                <div>
-                    <div class="meta-row">
-                        <span class="outlet-tag">{story['source']}</span>
-                        <span class="date">{story['published'][:10]}</span>
-                    </div>
-                    <h3 class="headline-title">{story['title']}</h3>
-                    <p>{clean_summary[:120]}...</p>
-                </div>
-            </div>
-        </a>
-        """
-    return html
-
-# --- 7. HTML BUILDERS ---
-def generate_uk_html():
-    articles_data = fetch_rss_articles(RSS_FEEDS_UK)
-    
-    html = f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>The Olit UK</title>
-    <style>{CSS_STYLES}</style>
+    </style>
 </head>
 <body>
     <div class="header-container">
@@ -448,12 +272,14 @@ def generate_uk_html():
 
     <div class="region-section" id="london-se">
         <div class="region-header">London & South East</div>
-        <div class="stories-grid">{render_stories_grid(articles_data.get('london-se', []))}</div>
+        <div class="stories-grid">
+            <!-- Feed cards will be injected here by python script -->
+        </div>
     </div>
 
     <div class="region-section" id="scotland">
         <div class="region-header">Scotland</div>
-        <div class="stories-grid">{render_stories_grid(articles_data.get('scotland', []))}</div>
+        <div class="stories-grid"></div>
     </div>
 
     <div class="photo-showcase-container">
@@ -466,34 +292,27 @@ def generate_uk_html():
 
     <div class="region-section" id="wales">
         <div class="region-header">Wales</div>
-        <div class="stories-grid">{render_stories_grid(articles_data.get('wales', []))}</div>
+        <div class="stories-grid"></div>
     </div>
 
     <div class="region-section" id="northern-ireland">
         <div class="region-header">Northern Ireland</div>
-        <div class="stories-grid">{render_stories_grid(articles_data.get('northern-ireland', []))}</div>
+        <div class="stories-grid"></div>
     </div>
 
     <div class="region-section" id="midlands">
         <div class="region-header">Midlands</div>
-        <div class="stories-grid">{render_stories_grid(articles_data.get('midlands', []))}</div>
+        <div class="stories-grid"></div>
     </div>
 
     <div class="region-section" id="north-england">
         <div class="region-header">North of England</div>
-        <div class="stories-grid">{render_stories_grid(articles_data.get('north-england', []))}</div>
+        <div class="stories-grid"></div>
     </div>
 
     <div class="region-section" id="uk-politics">
         <div class="region-header">UK Politics & National</div>
-        <div class="stories-grid">{render_stories_grid(articles_data.get('uk-politics', []))}</div>
+        <div class="stories-grid"></div>
     </div>
 </body>
 </html>
-"""
-    with open("index.html", "w", encoding="utf-8") as f:
-        f.write(html)
-    print("[✓] Successfully built index.html with sticky regional panel & updated feeds!")
-
-if __name__ == "__main__":
-    generate_uk_html()

@@ -318,73 +318,90 @@
     </div>
 
     <script>
-        async function loadRSSFeed(rssUrl, containerId, sourceName) {
-            const container = document.getElementById(containerId);
-            const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+    async function loadRSSFeed(rssUrl, containerId, sourceName) {
+        const container = document.getElementById(containerId);
+        // Using AllOrigins CORS proxy to reliably fetch the RSS XML in the browser
+        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`;
 
-            try {
-                const response = await fetch(apiUrl);
-                const data = await response.json();
+        try {
+            const response = await fetch(proxyUrl);
+            const data = await response.json();
+            
+            if (data.contents) {
+                // Parse the XML text returned by the proxy
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(data.contents, "text/xml");
+                const items = xmlDoc.querySelectorAll("item");
 
-                if (data.status === 'ok') {
+                if (items.length > 0) {
                     if (container.innerHTML.includes('Loading feeds...')) {
                         container.innerHTML = '';
                     }
-                    data.items.slice(0, 2).forEach(item => {
-                        const dateStr = item.pubDate ? item.pubDate.substring(0, 10) : 'Recent';
-                        const snippet = item.description ? item.description.replace(/<[^>]*>?/gm, '').substring(0, 120) : 'Read full story...';
+
+                    // Loop through the top 2 articles
+                    let count = 0;
+                    items.forEach(item => {
+                        if (count >= 2) return;
+                        
+                        const title = item.querySelector("title") ? item.querySelector("title").textContent : "Untitled Story";
+                        const link = item.querySelector("link") ? item.querySelector("link").textContent : "#";
+                        const descriptionNode = item.querySelector("description");
+                        const pubDateNode = item.querySelector("pubDate");
+
+                        const dateStr = pubDateNode ? pubDateNode.textContent.substring(0, 16) : 'Recent';
+                        const rawDesc = descriptionNode ? descriptionNode.textContent : 'Read full story...';
+                        const snippet = rawDesc.replace(/<[^>]*>?/gm, '').substring(0, 120);
 
                         const cardHTML = `
-                            <a href="${item.link}" target="_blank" class="card-link">
+                            <a href="${link}" target="_blank" class="card-link">
                                 <div class="card">
                                     <div>
                                         <div class="meta-row">
                                             <span class="outlet-tag">${sourceName}</span>
                                             <span class="date">${dateStr}</span>
                                         </div>
-                                        <h3 class="headline-title">${item.title}</h3>
+                                        <h3 class="headline-title">${title}</h3>
                                         <p>${snippet}...</p>
                                     </div>
                                 </div>
                             </a>
                         `;
                         container.innerHTML += cardHTML;
+                        count++;
                     });
                 }
-            } catch (error) {
-                console.error("Error loading feed:", error);
             }
+        } catch (error) {
+            console.error("Error loading feed for " + sourceName, error);
         }
+    }
 
-        document.addEventListener("DOMContentLoaded", () => {
-            // London & SE
-            loadRSSFeed("https://feeds.bbci.co.uk/news/england/london/rss.xml", "london-se-grid", "BBC London");
-            loadRSSFeed("https://www.standard.co.uk/news/london/rss", "london-se-grid", "Evening Standard");
+    document.addEventListener("DOMContentLoaded", () => {
+        // North America
+        loadRSSFeed("https://feeds.bbci.co.uk/news/world/us_and_canada/rss.xml", "north-america-grid", "BBC US & Canada");
+        loadRSSFeed("https://rss.nytimes.com/services/xml/rss/nyt/World.xml", "north-america-grid", "NYT World");
 
-            // Scotland
-            loadRSSFeed("https://feeds.bbci.co.uk/news/scotland/rss.xml", "scotland-grid", "BBC Scotland");
-            loadRSSFeed("https://www.scotsman.com/news/rss", "scotland-grid", "The Scotsman");
+        // Latin America
+        loadRSSFeed("https://feeds.bbci.co.uk/news/world/latin_america/rss.xml", "latin-america-grid", "BBC Latin America");
+        loadRSSFeed("https://globalvoices.org/-/world/latin-america-caribbean/feed/", "latin-america-grid", "Global Voices");
 
-            // Wales
-            loadRSSFeed("https://feeds.bbci.co.uk/news/wales/rss.xml", "wales-grid", "BBC Wales");
-            loadRSSFeed("https://www.walesonline.co.uk/?service=rss", "wales-grid", "Wales Online");
+        // Europe
+        loadRSSFeed("https://feeds.bbci.co.uk/news/world/europe/rss.xml", "europe-grid", "BBC Europe");
+        loadRSSFeed("https://www.euronews.com/rss?format=rss", "europe-grid", "Euronews");
 
-            // Northern Ireland
-            loadRSSFeed("https://feeds.bbci.co.uk/news/northern_ireland/rss.xml", "northern-ireland-grid", "BBC Northern Ireland");
-            loadRSSFeed("https://www.belfasttelegraph.co.uk/rss/", "northern-ireland-grid", "Belfast Telegraph");
+        // Africa
+        loadRSSFeed("https://feeds.bbci.co.uk/news/world/africa/rss.xml", "africa-grid", "BBC Africa");
+        loadRSSFeed("https://www.aljazeera.com/xml/rss/all.xml", "africa-grid", "Al Jazeera");
 
-            // Midlands
-            loadRSSFeed("https://feeds.bbci.co.uk/news/england/stoke_and_staffordshire/rss.xml", "midlands-grid", "BBC Midlands");
-            loadRSSFeed("https://www.birminghammail.co.uk/?service=rss", "midlands-grid", "Birmingham Mail");
+        // Russia & Eurasia
+        loadRSSFeed("https://feeds.bbci.co.uk/news/world/europe/rss.xml", "russia-eurasia-grid", "BBC Europe");
 
-            // North of England
-            loadRSSFeed("https://feeds.bbci.co.uk/news/england/manchester/rss.xml", "north-england-grid", "BBC Manchester");
-            loadRSSFeed("https://www.manchestereveningnews.co.uk/?service=rss", "north-england-grid", "Manchester Evening News");
+        // East Asia
+        loadRSSFeed("https://feeds.bbci.co.uk/news/world/asia/rss.xml", "east-asia-grid", "BBC Asia");
 
-            // UK Politics
-            loadRSSFeed("https://feeds.bbci.co.uk/news/politics/rss.xml", "uk-politics-grid", "BBC Politics");
-            loadRSSFeed("https://www.theguardian.com/politics/rss", "uk-politics-grid", "The Guardian");
-        });
-    </script>
+        // Australia & Oceania
+        loadRSSFeed("https://feeds.bbci.co.uk/news/world/asia/rss.xml", "australia-oceania-grid", "BBC Asia-Pacific");
+    });
+</script>
 </body>
 </html>

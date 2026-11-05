@@ -176,7 +176,21 @@
             gap: 10px;
             align-items: center;
         }
+        .admin-link {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 0.75rem;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        .admin-link a {
+            color: var(--text-muted);
+            text-decoration: none;
+        }
     </style>
+
+    <!-- Firebase SDKs (Compat versions for simple HTML usage) -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
@@ -211,51 +225,99 @@
         </div>
 
         <!-- Threads Container -->
-        <div id="threads-wrapper"></div>
+        <div id="threads-wrapper">Loading posts...</div>
+
+        <!-- Admin Mode Link -->
+        <div class="admin-link">
+            <a href="#" onclick="toggleAdmin(); return false;" id="admin-toggle-btn">[Admin Mode]</a>
+        </div>
 
     </div>
 
     <script>
+        // --- 1. FIREBASE INITIALIZATION ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAcfIPE9OB-dv1f90W4wS2dOdD2IyHw2Qg",
+            authDomain: "the-olit-discussion-87baf.firebaseapp.com",
+            projectId: "the-olit-discussion-87baf",
+            storageBucket: "the-olit-discussion-87baf.firebasestorage.app",
+            messagingSenderId: "1042760901031",
+            appId: "1:1042760901031:web:24e279c580b22f53b85682",
+            measurementId: "G-0DBE2N94Y3"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // --- 2. STATE VARIABLES ---
         const MAX_THREADS = 5;
+        const ADMIN_PASSCODE = "OperationEuclid1990"; // CHANGE THIS TO YOUR SECRET PASSWORD
+        let isAdmin = false;
+        let threads = [];
 
-        let threads = [
-            {
-                id: 1001,
-                subject: "Regional Infrastructure Priorities",
-                name: "Anonymous",
-                date: "Thu, 05 Nov 12:00:00",
-                comment: "What are the key regional transit updates needed across the UK this quarter?",
-                image: "images/northe_sea_gas.jpg",
-                replies: [
-                    {
-                        id: 1002,
-                        name: "Anonymous",
-                        date: "Thu, 05 Nov 12:05:00",
-                        comment: "Focusing on east-west rail connectivity in the Midlands should be prioritized.",
-                        image: null
-                    }
-                ]
+        // --- 3. REALTIME DATABASE SYNC ---
+        // Listens for live updates from Firestore and renders automatically
+        db.collection("threads")
+          .orderBy("createdAt", "desc")
+          .onSnapshot((snapshot) => {
+              threads = snapshot.docs.map(doc => ({
+                  docId: doc.id,
+                  ...doc.data()
+              }));
+              renderThreads();
+          }, (error) => {
+              console.error("Error fetching threads: ", error);
+              document.getElementById('threads-wrapper').innerHTML = `<p style="color:red;">Make sure Firestore is created in 'Test Mode'.</p>`;
+          });
+
+        // --- 4. ADMIN TOGGLE ---
+        function toggleAdmin() {
+            if (!isAdmin) {
+                const pass = prompt("enter admin code:");
+                if (pass === ADMIN_PASSCODE) {
+                    isAdmin = true;
+                    document.getElementById('admin-toggle-btn').innerText = "[Disable Admin Mode]";
+                    alert("Admin mode enabled. You can now delete posts for all visitors.");
+                    renderThreads();
+                } else if (pass !== null) {
+                    alert("Incorrect passcode.");
+                }
+            } else {
+                isAdmin = false;
+                document.getElementById('admin-toggle-btn').innerText = "[Admin Mode]";
+                alert("Admin mode disabled.");
+                renderThreads();
             }
-        ];
+        }
 
+        // --- 5. RENDER FUNCTIONS ---
         function renderThreads() {
             const wrapper = document.getElementById('threads-wrapper');
             wrapper.innerHTML = '';
+
+            if (threads.length === 0) {
+                wrapper.innerHTML = '<p style="color: var(--text-muted);">No threads active yet. Be the first to start a discussion!</p>';
+                return;
+            }
 
             threads.forEach((thread) => {
                 const threadEl = document.createElement('div');
                 threadEl.className = 'thread';
 
                 let imgHtml = thread.image ? `<img src="${thread.image}" class="post-image" alt="Uploaded Image">` : '';
+                let deleteThreadBtn = isAdmin ? `<span style="float: right; cursor: pointer; color: #b22222; font-weight: bold;" onclick="deleteThread('${thread.docId}')">[Delete Thread]</span>` : '';
 
-                let repliesHtml = thread.replies.map(reply => {
+                let repliesHtml = (thread.replies || []).map((reply, replyIndex) => {
                     let replyImgHtml = reply.image ? `<img src="${reply.image}" class="reply-image" alt="Reply Image">` : '';
+                    let deleteReplyBtn = isAdmin ? `<span style="float: right; cursor: pointer; color: #b22222; font-weight: bold;" onclick="deleteReply('${thread.docId}', ${replyIndex})">[Delete]</span>` : '';
+
                     return `
                         <div class="reply">
                             <div class="post-header">
                                 <span class="poster-name">${reply.name}</span> 
                                 <span>${reply.date}</span> 
                                 <span class="post-number">No.${reply.id}</span>
+                                ${deleteReplyBtn}
                             </div>
                             <div class="reply-body">
                                 ${replyImgHtml}
@@ -271,6 +333,7 @@
                         <span class="poster-name">${thread.name}</span> 
                         <span>${thread.date}</span> 
                         <span class="post-number">No.${thread.id}</span>
+                        ${deleteThreadBtn}
                     </div>
                     <div class="post-body">
                         ${imgHtml}
@@ -280,11 +343,11 @@
                         ${repliesHtml}
                         <div class="reply-form">
                             <div class="reply-inputs">
-                                <input type="text" id="reply-text-${thread.id}" style="flex:1; padding:6px;" placeholder="Write a reply...">
-                                <button class="btn-submit" onclick="addReply(${thread.id})">Reply</button>
+                                <input type="text" id="reply-text-${thread.docId}" style="flex:1; padding:6px;" placeholder="Write a reply...">
+                                <button class="btn-submit" onclick="addReply('${thread.docId}')">Reply</button>
                             </div>
                             <div>
-                                <input type="file" id="reply-image-file-${thread.id}" accept="image/*" style="font-size:0.75rem;">
+                                <input type="file" id="reply-image-file-${thread.docId}" accept="image/*" style="font-size:0.75rem;">
                             </div>
                         </div>
                     </div>
@@ -294,6 +357,7 @@
             });
         }
 
+        // --- 6. ACTION FUNCTIONS (FIRESTORE WRITES) ---
         function createThread() {
             const subject = document.getElementById('thread-subject').value.trim();
             const comment = document.getElementById('thread-comment').value.trim();
@@ -306,45 +370,42 @@
             }
 
             const processThread = (imageDataUrl = null) => {
+                // Remove oldest thread if limit of 5 is exceeded
                 if (threads.length >= MAX_THREADS) {
-                    threads.pop();
+                    const oldestDocId = threads[threads.length - 1].docId;
+                    db.collection("threads").doc(oldestDocId).delete();
                 }
 
-                const newThread = {
+                // Add new thread document to Firestore
+                db.collection("threads").add({
                     id: Math.floor(100000 + Math.random() * 900000),
                     subject: subject || 'Untitled',
                     name: 'Anonymous',
                     date: new Date().toUTCString().slice(0, 22),
                     comment: comment,
                     image: imageDataUrl,
-                    replies: []
-                };
-
-                threads.unshift(newThread);
-
-                // Reset Form
-                document.getElementById('thread-subject').value = '';
-                document.getElementById('thread-comment').value = '';
-                fileInput.value = '';
-
-                renderThreads();
+                    replies: [],
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                }).then(() => {
+                    document.getElementById('thread-subject').value = '';
+                    document.getElementById('thread-comment').value = '';
+                    fileInput.value = '';
+                }).catch(err => alert("Error posting thread: " + err.message));
             };
 
             if (file) {
                 const reader = new FileReader();
-                reader.onload = function(e) {
-                    processThread(e.target.result);
-                };
+                reader.onload = (e) => processThread(e.target.result);
                 reader.readAsDataURL(file);
             } else {
                 processThread();
             }
         }
 
-        function addReply(threadId) {
-            const textInput = document.getElementById(`reply-text-${threadId}`);
+        function addReply(docId) {
+            const textInput = document.getElementById(`reply-text-${docId}`);
             const comment = textInput.value.trim();
-            const fileInput = document.getElementById(`reply-image-file-${threadId}`);
+            const fileInput = document.getElementById(`reply-image-file-${docId}`);
             const file = fileInput.files[0];
 
             if (!comment && !file) {
@@ -353,31 +414,53 @@
             }
 
             const processReply = (imageDataUrl = null) => {
-                const thread = threads.find(t => t.id === threadId);
+                const thread = threads.find(t => t.docId === docId);
                 if (thread) {
-                    thread.replies.push({
+                    const updatedReplies = thread.replies || [];
+                    updatedReplies.push({
                         id: Math.floor(100000 + Math.random() * 900000),
                         name: 'Anonymous',
                         date: new Date().toUTCString().slice(0, 22),
                         comment: comment,
                         image: imageDataUrl
                     });
-                    renderThreads();
+
+                    // Update replies array in Firestore
+                    db.collection("threads").doc(docId).update({
+                        replies: updatedReplies
+                    });
                 }
             };
 
             if (file) {
                 const reader = new FileReader();
-                reader.onload = function(e) {
-                    processReply(e.target.result);
-                };
+                reader.onload = (e) => processReply(e.target.result);
                 reader.readAsDataURL(file);
             } else {
                 processReply();
             }
         }
 
-        renderThreads();
+        // --- 7. PERMANENT MODERATION DELETIONS ---
+        function deleteThread(docId) {
+            if (isAdmin && confirm("Permanently delete this thread for everyone?")) {
+                db.collection("threads").doc(docId).delete();
+            }
+        }
+
+        function deleteReply(docId, replyIndex) {
+            if (isAdmin && confirm("Permanently delete this reply?")) {
+                const thread = threads.find(t => t.docId === docId);
+                if (thread) {
+                    const updatedReplies = [...thread.replies];
+                    updatedReplies.splice(replyIndex, 1);
+
+                    db.collection("threads").doc(docId).update({
+                        replies: updatedReplies
+                    });
+                }
+            }
+        }
     </script>
 </body>
 </html>

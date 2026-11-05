@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>The Olit | Discussion Board</title>
+    <title>The Olit Discussion </title>
     <style>
         :root {
             --bg-cream: #fbf9f5;
@@ -75,7 +75,7 @@
             font-weight: bold;
             margin-bottom: 3px;
         }
-        .form-group input, .form-group textarea {
+        .form-group input[type="text"], .form-group textarea {
             width: 100%;
             padding: 6px;
             box-sizing: border-box;
@@ -129,8 +129,8 @@
             margin-bottom: 15px;
         }
         .post-image {
-            max-width: 150px;
-            max-height: 150px;
+            max-width: 180px;
+            max-height: 180px;
             object-fit: contain;
             border: 1px solid #ddd;
         }
@@ -185,8 +185,8 @@
                 <textarea id="thread-comment" rows="3" placeholder="Write your post..."></textarea>
             </div>
             <div class="form-group">
-                <label>Image URL (Optional)</label>
-                <input type="text" id="thread-image" placeholder="https://example.com/image.jpg">
+                <label>Upload Image (Optional)</label>
+                <input type="file" id="thread-image-file" accept="image/*">
             </div>
             <button class="btn-submit" onclick="createThread()">Post Thread</button>
         </div>
@@ -197,10 +197,8 @@
     </div>
 
     <script>
-        // Max 5 threads limit
         const MAX_THREADS = 5;
 
-        // Default initial threads data
         let threads = [
             {
                 id: 1001,
@@ -224,11 +222,11 @@
             const wrapper = document.getElementById('threads-wrapper');
             wrapper.innerHTML = '';
 
-            threads.forEach((thread, index) => {
+            threads.forEach((thread) => {
                 const threadEl = document.createElement('div');
                 threadEl.className = 'thread';
 
-                let imgHtml = thread.image ? `<img src="${thread.image}" class="post-image" alt="Post Image">` : '';
+                let imgHtml = thread.image ? `<img src="${thread.image}" class="post-image" alt="Uploaded Image">` : '';
 
                 let repliesHtml = thread.replies.map(reply => `
                     <div class="reply">
@@ -268,36 +266,48 @@
         function createThread() {
             const subject = document.getElementById('thread-subject').value.trim();
             const comment = document.getElementById('thread-comment').value.trim();
-            const image = document.getElementById('thread-image').value.trim();
+            const fileInput = document.getElementById('thread-image-file');
+            const file = fileInput.files[0];
 
             if (!comment) {
                 alert('Comment text is required to post a thread.');
                 return;
             }
 
-            // Enforce max 5 threads by removing the oldest thread if limit reached
-            if (threads.length >= MAX_THREADS) {
-                threads.pop(); // Remove the oldest thread at the bottom
-            }
+            const processThread = (imageDataUrl = null) => {
+                if (threads.length >= MAX_THREADS) {
+                    threads.pop();
+                }
 
-            const newThread = {
-                id: Math.floor(100000 + Math.random() * 900000),
-                subject: subject || 'Untitled',
-                name: 'Anonymous',
-                date: new Date().toUTCString().slice(0, 22),
-                comment: comment,
-                image: image || null,
-                replies: []
+                const newThread = {
+                    id: Math.floor(100000 + Math.random() * 900000),
+                    subject: subject || 'Untitled',
+                    name: 'Anonymous',
+                    date: new Date().toUTCString().slice(0, 22),
+                    comment: comment,
+                    image: imageDataUrl,
+                    replies: []
+                };
+
+                threads.unshift(newThread);
+
+                // Reset Form
+                document.getElementById('thread-subject').value = '';
+                document.getElementById('thread-comment').value = '';
+                fileInput.value = '';
+
+                renderThreads();
             };
 
-            threads.unshift(newThread); // Add new thread to the top
-
-            // Clear inputs
-            document.getElementById('thread-subject').value = '';
-            document.getElementById('thread-comment').value = '';
-            document.getElementById('thread-image').value = '';
-
-            renderThreads();
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    processThread(e.target.result);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                processThread();
+            }
         }
 
         function addReply(threadId) {
@@ -318,7 +328,6 @@
             }
         }
 
-        // Initial Render
         renderThreads();
     </script>
 </body>

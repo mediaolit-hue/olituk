@@ -2,14 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Discussion Desk | Essays & Perspectives</title>
+    <title>The Olit | Discussion Board</title>
     <style>
         :root {
             --bg-cream: #fbf9f5;
             --border-sharp: #111111;
             --text-main: #111111;
             --text-muted: #555555;
-            --accent-hover: rgba(178, 34, 34, 0.15);
+            --board-header: #700000;
         }
         body {
             font-family: Georgia, "Times New Roman", serif;
@@ -18,29 +18,16 @@
             margin: 0;
             padding: 24px;
             min-height: 100vh;
-            scroll-behavior: smooth;
         }
         .header-container {
             max-width: 1350px;
             margin: 0 auto 15px auto;
             border-bottom: 3px solid var(--border-sharp);
             padding-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-        }
-        .brand-subtitle {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            font-size: 0.85rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            margin-bottom: 2px;
         }
         .brand-title {
             margin: 0;
             font-size: 2.2rem;
-            letter-spacing: -0.5px;
             text-transform: uppercase;
             font-weight: 700;
         }
@@ -61,183 +48,278 @@
             font-weight: 700;
             margin: 0 12px;
         }
-        .global-nav a:hover {
-            text-decoration: underline;
-            color: #b22222;
-        }
-        .interactive-map-wrapper {
-            max-width: 1350px;
-            margin: 0 auto 40px auto;
-            text-align: center;
-            position: relative;
-        }
-        .map-container {
-            position: relative;
-            display: inline-block;
-            max-width: 100%;
-        }
-        .map-container img {
-            width: 100%;
-            height: auto;
-            display: block;
-            max-height: 550px;
-            object-fit: contain;
-        }
-        .map-instruction {
+        .main-container {
+            max-width: 1000px;
+            margin: 0 auto;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: var(--text-muted);
-            margin-bottom: 12px;
         }
-        .continent-hotspot {
-            position: absolute;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background-color 0.2s ease, border 0.2s ease;
-            border: 2px solid transparent;
-        }
-        .continent-hotspot:hover {
-            background-color: var(--accent-hover);
-            border-color: #b22222;
-        }
-        .photo-showcase-container {
-            max-width: 1350px;
-            margin: 0 auto 45px auto;
-        }
-        .photo-showcase-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            border-bottom: 1px solid var(--border-sharp);
-            padding-bottom: 10px;
-            margin-bottom: 15px;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-size: 0.85rem;
-            font-weight: 700;
-        }
-        .photo-main-frame img {
-            width: 100%;
-            height: auto;
-            max-height: 850px;
-            object-fit: contain;
-            display: block;
-        }
-        .region-section {
-            max-width: 1350px;
-            margin: 0 auto 40px auto;
-        }
-        .region-header {
-            font-size: 1.5rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border-bottom: 2px solid var(--border-sharp);
-            padding-bottom: 6px;
-            margin-bottom: 20px;
-        }
-        .stories-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 25px;
-        }
-        .card-link {
-            text-decoration: none;
-            color: inherit;
-            display: flex;
-        }
-        .card {
+        .new-thread-box {
             background-color: #ffffff;
             border: 1px solid var(--border-sharp);
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            width: 100%;
+            padding: 15px;
+            margin-bottom: 30px;
         }
-        .card-link:hover .card {
-            border-width: 2px;
-        }
-        .meta-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            font-size: 0.75rem;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        .new-thread-box h3 {
+            margin-top: 0;
+            font-size: 1rem;
             text-transform: uppercase;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
         }
-        .outlet-tag {
-            font-weight: 700;
-            border-bottom: 1px solid var(--border-sharp);
+        .form-group {
+            margin-bottom: 10px;
         }
-        .date {
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 6px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            font-family: inherit;
+        }
+        .btn-submit {
+            background-color: var(--border-sharp);
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+        }
+        .btn-submit:hover {
+            background-color: var(--board-header);
+        }
+        
+        /* Thread & Post Styling */
+        .thread {
+            background-color: #ffffff;
+            border: 1px solid var(--border-sharp);
+            padding: 15px;
+            margin-bottom: 25px;
+        }
+        .post-header {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            border-bottom: 1px dashed #ccc;
+            padding-bottom: 5px;
+        }
+        .post-subject {
+            color: var(--board-header);
+            font-weight: bold;
+            font-size: 1rem;
+        }
+        .poster-name {
+            color: #117743;
+            font-weight: bold;
+        }
+        .post-number {
             color: var(--text-muted);
             font-family: monospace;
         }
-        h3.headline-title {
-            margin: 0 0 10px 0;
-            font-size: 1.15rem;
-            font-weight: 700;
-            line-height: 1.35;
+        .post-body {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
         }
-        p {
-            line-height: 1.5;
-            color: var(--text-muted);
-            font-size: 0.88rem;
-            margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        .post-image {
+            max-width: 150px;
+            max-height: 150px;
+            object-fit: contain;
+            border: 1px solid #ddd;
+        }
+        .post-text {
+            font-size: 0.9rem;
+            line-height: 1.4;
+            white-space: pre-wrap;
+        }
+        
+        /* Replies Section */
+        .replies-container {
+            margin-left: 20px;
+            border-left: 2px solid #eee;
+            padding-left: 15px;
+        }
+        .reply {
+            background-color: var(--bg-cream);
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        .reply-form {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
         }
     </style>
 </head>
 <body>
+
     <div class="header-container">
-        <div>
-            <div class="brand-subtitle">Events. Stories. Perspectives.</div>
-            <h1 class="brand-title">The Olit UK</h1>
-        </div>
+        <h1 class="brand-title">The Olit UK</h1>
     </div>
 
     <nav class="global-nav">
-        <a href="uk.html" style="">The Olit UK</a> • 
-        <a href="world.html" style="">The Olit World</a> • 
-        <a href="discussion.html" style="text-decoration: underline; color: #b22222;">Discussion Desk</a>
+        <a href="uk.html">The Olit UK</a> • 
+        <a href="world.html">The Olit World</a> • 
+        <a href="discussion.html" style="text-decoration: underline; color: #b22222;">Discussion Board</a>
     </nav>
 
-    
-    
-    
-            <div class="region-section" id="opinion">
-                <div class="region-header">Essays & Commentaries</div>
-                <div class="stories-grid">
-        <a href="https://www.theguardian.com/commentisfree/2026/nov/05/kemi-badenoch-polls-tory-party-direction" target="_blank" class="card-link">
-            <div class="card">
-                <div>
-                    <div class="meta-row">
-                        <span class="outlet-tag">Opinion | The Guardian</span>
-                        <span class="date">Thu, 05 No</span>
-                    </div>
-                    <h3 class="headline-title">No amount of sliding in the polls can shake Kemi Badenoch’s self-belief – or alter her party’s direction | Andy Beckett</h3>
-                    <p><p>Two years in to her leadership, Badenoch continues to take the Tories ever-rightwards, into comfort-zone Conservatism...</p>
-                </div>
+    <div class="main-container">
+        
+        <!-- New Thread Form -->
+        <div class="new-thread-box">
+            <h3>Start a New Thread (Max 5 Active Threads)</h3>
+            <div class="form-group">
+                <label>Subject</label>
+                <input type="text" id="thread-subject" placeholder="Thread topic...">
             </div>
-        </a>
-        <a href="https://www.theguardian.com/commentisfree/2026/nov/04/abdul-el-sayed-opinion-sharia-law-islamophobia" target="_blank" class="card-link">
-            <div class="card">
-                <div>
-                    <div class="meta-row">
-                        <span class="outlet-tag">Opinion | The Guardian</span>
-                        <span class="date">Wed, 04 No</span>
-                    </div>
-                    <h3 class="headline-title">Get ready habibis, Abdul El-Sayed’s ‘shawarma law’ is coming to the US | Arwa Mahdawi</h3>
-                    <p><p>When the US’s first Muslim senator used Arabic in his victory speech, it cut through the torrent of vile racism Maga ...</p>
-                </div>
+            <div class="form-group">
+                <label>Comment</label>
+                <textarea id="thread-comment" rows="3" placeholder="Write your post..."></textarea>
             </div>
-        </a></div>
+            <div class="form-group">
+                <label>Image URL (Optional)</label>
+                <input type="text" id="thread-image" placeholder="https://example.com/image.jpg">
             </div>
+            <button class="btn-submit" onclick="createThread()">Post Thread</button>
+        </div>
 
+        <!-- Threads Container -->
+        <div id="threads-wrapper"></div>
+
+    </div>
+
+    <script>
+        // Max 5 threads limit
+        const MAX_THREADS = 5;
+
+        // Default initial threads data
+        let threads = [
+            {
+                id: 1001,
+                subject: "Regional Infrastructure Priorities",
+                name: "Anonymous",
+                date: "Thu, 05 Nov 12:00:00",
+                comment: "What are the key regional transit updates needed across the UK this quarter?",
+                image: "images/northe_sea_gas.jpg",
+                replies: [
+                    {
+                        id: 1002,
+                        name: "Anonymous",
+                        date: "Thu, 05 Nov 12:05:00",
+                        comment: "Focusing on east-west rail connectivity in the Midlands should be prioritized."
+                    }
+                ]
+            }
+        ];
+
+        function renderThreads() {
+            const wrapper = document.getElementById('threads-wrapper');
+            wrapper.innerHTML = '';
+
+            threads.forEach((thread, index) => {
+                const threadEl = document.createElement('div');
+                threadEl.className = 'thread';
+
+                let imgHtml = thread.image ? `<img src="${thread.image}" class="post-image" alt="Post Image">` : '';
+
+                let repliesHtml = thread.replies.map(reply => `
+                    <div class="reply">
+                        <div class="post-header">
+                            <span class="poster-name">${reply.name}</span> 
+                            <span>${reply.date}</span> 
+                            <span class="post-number">No.${reply.id}</span>
+                        </div>
+                        <div class="post-text">${reply.comment}</div>
+                    </div>
+                `).join('');
+
+                threadEl.innerHTML = `
+                    <div class="post-header">
+                        <span class="post-subject">${thread.subject}</span> 
+                        <span class="poster-name">${thread.name}</span> 
+                        <span>${thread.date}</span> 
+                        <span class="post-number">No.${thread.id}</span>
+                    </div>
+                    <div class="post-body">
+                        ${imgHtml}
+                        <div class="post-text">${thread.comment}</div>
+                    </div>
+                    <div class="replies-container">
+                        ${repliesHtml}
+                        <div class="reply-form">
+                            <input type="text" id="reply-text-${thread.id}" style="width:70%; padding:4px;" placeholder="Write a reply...">
+                            <button class="btn-submit" onclick="addReply(${thread.id})">Reply</button>
+                        </div>
+                    </div>
+                `;
+
+                wrapper.appendChild(threadEl);
+            });
+        }
+
+        function createThread() {
+            const subject = document.getElementById('thread-subject').value.trim();
+            const comment = document.getElementById('thread-comment').value.trim();
+            const image = document.getElementById('thread-image').value.trim();
+
+            if (!comment) {
+                alert('Comment text is required to post a thread.');
+                return;
+            }
+
+            // Enforce max 5 threads by removing the oldest thread if limit reached
+            if (threads.length >= MAX_THREADS) {
+                threads.pop(); // Remove the oldest thread at the bottom
+            }
+
+            const newThread = {
+                id: Math.floor(100000 + Math.random() * 900000),
+                subject: subject || 'Untitled',
+                name: 'Anonymous',
+                date: new Date().toUTCString().slice(0, 22),
+                comment: comment,
+                image: image || null,
+                replies: []
+            };
+
+            threads.unshift(newThread); // Add new thread to the top
+
+            // Clear inputs
+            document.getElementById('thread-subject').value = '';
+            document.getElementById('thread-comment').value = '';
+            document.getElementById('thread-image').value = '';
+
+            renderThreads();
+        }
+
+        function addReply(threadId) {
+            const input = document.getElementById(`reply-text-${threadId}`);
+            const comment = input.value.trim();
+
+            if (!comment) return;
+
+            const thread = threads.find(t => t.id === threadId);
+            if (thread) {
+                thread.replies.push({
+                    id: Math.floor(100000 + Math.random() * 900000),
+                    name: 'Anonymous',
+                    date: new Date().toUTCString().slice(0, 22),
+                    comment: comment
+                });
+                renderThreads();
+            }
+        }
+
+        // Initial Render
+        renderThreads();
+    </script>
 </body>
 </html>

@@ -205,7 +205,7 @@
 <body>
     <div class="header-container">
         <div>
-            <div class="brand-subtitle"> Events. Stories. Perspectives.</div>
+            <div class="brand-subtitle">Events. Stories. Perspectives.</div>
             <h1 class="brand-title">The Olit UK</h1>
         </div>
     </div>
@@ -223,7 +223,7 @@
     <div class="interactive-map-wrapper">
         <div class="map-instruction">Click directly on any UK region to jump to its feeds</div>
         <div class="map-container">
-            <img src="C:/Users/Lenovo/Downloads/olituk.jpg" alt="UK Interactive Map">
+            <img src="images/olituk.jpg" alt="UK Interactive Map">
             <a href="#london-se" title="London & South East"><div class="continent-hotspot" style="top: 60%; left: 55%; width: 25%; height: 25%;"></div></a>
             <a href="#scotland" title="Scotland"><div class="continent-hotspot" style="top: 10%; left: 35%; width: 35%; height: 28%;"></div></a>
             <a href="#wales" title="Wales"><div class="continent-hotspot" style="top: 55%; left: 25%; width: 20%; height: 25%;"></div></a>
@@ -236,35 +236,35 @@
 
     <div class="photo-showcase-container">
         <div class="photo-showcase-header">
-            <span>Photo: Uk Prime Minister, Andy Burnham, at U.N General Assembly</span>
+            <span>Photo: UK Prime Minister, Andy Burnham, at U.N General Assembly</span>
             <span style="font-family: monospace; font-weight: normal; color: var(--text-muted);">Archive</span>
         </div>
         <div class="photo-main-frame">
-            <img src="C:/Users/Lenovo/Downloads/burnham.jpg" alt="Burnham Dispatch">
+            <img src="images/burnham.jpg" alt="Burnham Dispatch">
         </div>
     </div>
 
     <!-- London & South East Section -->
     <div class="region-section" id="london-se">
         <div class="region-header">London & South East</div>
-        <div class="stories-grid">
-            <!-- Feed cards will render here -->
+        <div class="stories-grid" id="london-se-grid">
+            <p style="padding: 10px;">Loading feeds...</p>
         </div>
     </div>
 
     <!-- Scotland Section -->
     <div class="region-section" id="scotland">
         <div class="region-header">Scotland</div>
-        <div class="stories-grid">
-            <!-- Feed cards will render here -->
+        <div class="stories-grid" id="scotland-grid">
+            <p style="padding: 10px;">Loading feeds...</p>
         </div>
     </div>
 
     <!-- Wales Section -->
     <div class="region-section" id="wales">
         <div class="region-header">Wales</div>
-        <div class="stories-grid">
-            <!-- Feed cards will render here -->
+        <div class="stories-grid" id="wales-grid">
+            <p style="padding: 10px;">Loading feeds...</p>
         </div>
     </div>
 
@@ -274,40 +274,110 @@
             <span style="font-family: monospace; font-weight: normal; color: var(--text-muted);">Archive</span>
         </div>
         <div class="photo-main-frame">
-            <img src="C:/Users/Lenovo/Downloads/northe sea gas.jpg" alt="North Sea Gas Infrastructure">
+            <img src="images/northe sea gas.jpg" alt="North Sea Gas Infrastructure">
         </div>
     </div>
 
     <!-- Northern Ireland Section -->
     <div class="region-section" id="northern-ireland">
         <div class="region-header">Northern Ireland</div>
-        <div class="stories-grid">
-            <!-- Feed cards will render here -->
+        <div class="stories-grid" id="northern-ireland-grid">
+            <p style="padding: 10px;">Loading feeds...</p>
         </div>
     </div>
 
     <!-- Midlands Section -->
     <div class="region-section" id="midlands">
         <div class="region-header">Midlands</div>
-        <div class="stories-grid">
-            <!-- Feed cards will render here -->
+        <div class="stories-grid" id="midlands-grid">
+            <p style="padding: 10px;">Loading feeds...</p>
         </div>
     </div>
 
     <!-- North of England Section -->
     <div class="region-section" id="north-england">
         <div class="region-header">North of England</div>
-        <div class="stories-grid">
-            <!-- Feed cards will render here -->
+        <div class="stories-grid" id="north-england-grid">
+            <p style="padding: 10px;">Loading feeds...</p>
         </div>
     </div>
 
     <!-- UK Politics & National Section -->
     <div class="region-section" id="uk-politics">
         <div class="region-header">UK Politics & National</div>
-        <div class="stories-grid">
-            <!-- Feed cards will render here -->
+        <div class="stories-grid" id="uk-politics-grid">
+            <p style="padding: 10px;">Loading feeds...</p>
         </div>
     </div>
+
+    <script>
+        async function loadRSSFeed(rssUrl, containerId, sourceName) {
+            const container = document.getElementById(containerId);
+            const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                if (data.status === 'ok') {
+                    if (container.innerHTML.includes('Loading feeds...')) {
+                        container.innerHTML = '';
+                    }
+                    data.items.slice(0, 2).forEach(item => {
+                        const dateStr = item.pubDate ? item.pubDate.substring(0, 10) : 'Recent';
+                        const snippet = item.description ? item.description.replace(/<[^>]*>?/gm, '').substring(0, 120) : 'Read full story...';
+
+                        const cardHTML = `
+                            <a href="${item.link}" target="_blank" class="card-link">
+                                <div class="card">
+                                    <div>
+                                        <div class="meta-row">
+                                            <span class="outlet-tag">${sourceName}</span>
+                                            <span class="date">${dateStr}</span>
+                                        </div>
+                                        <h3 class="headline-title">${item.title}</h3>
+                                        <p>${snippet}...</p>
+                                    </div>
+                                </div>
+                            </a>
+                        `;
+                        container.innerHTML += cardHTML;
+                    });
+                }
+            } catch (error) {
+                console.error("Error loading feed:", error);
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            // London & SE
+            loadRSSFeed("https://feeds.bbci.co.uk/news/england/london/rss.xml", "london-se-grid", "BBC London");
+            loadRSSFeed("https://www.standard.co.uk/news/london/rss", "london-se-grid", "Evening Standard");
+
+            // Scotland
+            loadRSSFeed("https://feeds.bbci.co.uk/news/scotland/rss.xml", "scotland-grid", "BBC Scotland");
+            loadRSSFeed("https://www.scotsman.com/news/rss", "scotland-grid", "The Scotsman");
+
+            // Wales
+            loadRSSFeed("https://feeds.bbci.co.uk/news/wales/rss.xml", "wales-grid", "BBC Wales");
+            loadRSSFeed("https://www.walesonline.co.uk/?service=rss", "wales-grid", "Wales Online");
+
+            // Northern Ireland
+            loadRSSFeed("https://feeds.bbci.co.uk/news/northern_ireland/rss.xml", "northern-ireland-grid", "BBC Northern Ireland");
+            loadRSSFeed("https://www.belfasttelegraph.co.uk/rss/", "northern-ireland-grid", "Belfast Telegraph");
+
+            // Midlands
+            loadRSSFeed("https://feeds.bbci.co.uk/news/england/stoke_and_staffordshire/rss.xml", "midlands-grid", "BBC Midlands");
+            loadRSSFeed("https://www.birminghammail.co.uk/?service=rss", "midlands-grid", "Birmingham Mail");
+
+            // North of England
+            loadRSSFeed("https://feeds.bbci.co.uk/news/england/manchester/rss.xml", "north-england-grid", "BBC Manchester");
+            loadRSSFeed("https://www.manchestereveningnews.co.uk/?service=rss", "north-england-grid", "Manchester Evening News");
+
+            // UK Politics
+            loadRSSFeed("https://feeds.bbci.co.uk/news/politics/rss.xml", "uk-politics-grid", "BBC Politics");
+            loadRSSFeed("https://www.theguardian.com/politics/rss", "uk-politics-grid", "The Guardian");
+        });
+    </script>
 </body>
 </html>

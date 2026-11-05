@@ -1,9 +1,148 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>The Olit World</title>
-    <style>
+import os
+import time
+import random
+import json
+import feedparser
+import tweepy
+import schedule
+
+# --- 1. X API CONFIGURATION ---
+API_KEY = "OCgWBrX9a6EBeRV0XZZNomc1f"
+API_SECRET = "4CMyhjC6pFqK1KaKjHFVhOPXWb0GdBM4B79GR4wA6NGrWSgIG6"
+ACCESS_TOKEN = "2117795255831482368-NIVIhMUc28BeGF7IIG50hoxTPUUmXr"
+ACCESS_TOKEN_SECRET = "Lv9eB3KzpuBLJ0bkxIAagZz6yPpXXAP4E2n9jjlSba1NZ"
+
+client = tweepy.Client(
+    consumer_key=API_KEY,
+    consumer_secret=API_SECRET,
+    access_token=ACCESS_TOKEN,
+    access_token_secret=ACCESS_TOKEN_SECRET
+)
+
+TRACKER_FILE = "posted_stories.json"
+
+# --- 2. RSS FEED SOURCES ---
+RSS_FEEDS_WORLD = {
+    "world-news": [
+        "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
+        "https://feeds.bbci.co.uk/news/world/us_and_canada/rss.xml",
+        "https://www.thestar.com/search/?f=rss&t=article&c=news/world&l=50&sort=start_time:desc"
+    ],
+    "europe": [
+        "https://feeds.bbci.co.uk/news/world/europe/rss.xml",
+        "https://rss.dw.com/rdf/rss-en-top",
+        "https://www.france24.com/en/rss",
+        "https://www.politico.eu/feed/"
+    ],
+    "middle-east": [
+        "https://feeds.bbci.co.uk/news/world/middle_east/rss.xml",
+        "https://www.aljazeera.com/xml/rss/all.xml"
+    ],
+    "asia": [
+        "https://feeds.bbci.co.uk/news/world/asia/rss.xml",
+        "https://www.scmp.com/rss/91/feed",
+        "https://globalvoices.org/-/world/east-asia/feed/"
+    ]
+}
+
+RSS_FEEDS_UK = {
+    "uk-top": [
+        "https://feeds.bbci.co.uk/news/uk/rss.xml",
+        "https://www.theguardian.com/uk/rss"
+    ],
+    "england": [
+        "https://feeds.bbci.co.uk/news/england/rss.xml"
+    ],
+    "scotland": [
+        "https://feeds.bbci.co.uk/news/scotland/rss.xml"
+    ],
+    "wales": [
+        "https://feeds.bbci.co.uk/news/wales/rss.xml"
+    ],
+    "ni": [
+        "https://feeds.bbci.co.uk/news/northern_ireland/rss.xml"
+    ]
+}
+
+# --- 3. TRACKING POSTED STORIES ---
+def load_posted_history():
+    if os.path.exists(TRACKER_FILE):
+        try:
+            with open(TRACKER_FILE, "r", encoding="utf-8") as f:
+                return set(json.load(f))
+        except Exception:
+            return set()
+    return set()
+
+def save_posted_history(posted_links):
+    with open(TRACKER_FILE, "w", encoding="utf-8") as f:
+        json.dump(list(posted_links), f, indent=2)
+
+# --- 4. FETCH ARTICLES ---
+def fetch_rss_articles(feed_dict):
+    regional_content = {}
+    for region, urls in feed_dict.items():
+        regional_content[region] = []
+        for url in urls:
+            try:
+                parsed_feed = feedparser.parse(url)
+                source_name = parsed_feed.feed.get('title', 'Global Source')
+                if " - " in source_name:
+                    source_name = source_name.split(" - ")[0]
+
+                for entry in parsed_feed.entries[:4]:
+                    regional_content[region].append({
+                        "title": entry.get("title", "Untitled Story"),
+                        "link": entry.get("link", "#"),
+                        "summary": entry.get("summary", "Read the full story at the source publication..."),
+                        "published": entry.get("published", "Recent"),
+                        "source": source_name.strip()
+                    })
+            except Exception as e:
+                print(f"Skipping feed due to error: {url} -> {e}")
+    return regional_content
+
+# --- 5. AUTOMATED X (TWITTER) POSTER ---
+def post_story_to_x():
+    print("\n[+] Checking feeds for a new story to tweet...")
+    posted_links = load_posted_history()
+    available_stories = []
+
+    for region, urls in RSS_FEEDS_WORLD.items():
+        for url in urls:
+            try:
+                feed = feedparser.parse(url)
+                source_name = feed.feed.get('title', 'Global News').split(" - ")[0]
+                for entry in feed.entries[:5]:
+                    link = entry.get("link", "")
+                    if link and link not in posted_links:
+                        available_stories.append({
+                            "title": entry.get("title", "Untitled Story"),
+                            "link": link,
+                            "source": source_name.strip()
+                        })
+            except Exception as e:
+                print(f"Error reading feed for X: {e}")
+
+    if not available_stories:
+        print("[-] No new unposted stories found.")
+        return
+
+    story = random.choice(available_stories)
+    tweet_text = f"{story['title']}\n\nVia {story['source']}: {story['link']}"
+
+    try:
+        response = client.create_tweet(text=tweet_text)
+        print(f"[✓] Successfully posted to X! (Tweet ID: {response.data['id']})")
+        print(f"    {story['title']}")
+
+        posted_links.add(story['link'])
+        save_posted_history(posted_links)
+    except Exception as e:
+        print(f"[!] Failed to post to X: {e}")
+
+# --- 6. COMMON CSS STYLES ---
+CSS_STYLES = """
         :root {
             --bg-cream: #fbf9f5;
             --border-sharp: #111111;
@@ -61,7 +200,7 @@
             font-weight: 700;
             margin: 0 12px;
         }
-        .global-nav a:hover {
+        .global-nav a:hover, .global-nav a.active {
             text-decoration: underline;
             color: #b22222;
         }
@@ -84,266 +223,4 @@
             object-fit: contain;
         }
         .map-instruction {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: var(--text-muted);
-            margin-bottom: 12px;
-        }
-        .continent-hotspot {
-            position: absolute;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background-color 0.2s ease, border 0.2s ease;
-            border: 2px solid transparent;
-        }
-        .continent-hotspot:hover {
-            background-color: var(--accent-hover);
-            border-color: #b22222;
-        }
-        .region-section {
-            max-width: 1350px;
-            margin: 0 auto 40px auto;
-        }
-        .region-header {
-            font-size: 1.5rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border-bottom: 2px solid var(--border-sharp);
-            padding-bottom: 6px;
-            margin-bottom: 20px;
-        }
-        .stories-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 25px;
-        }
-        .card-link {
-            text-decoration: none;
-            color: inherit;
-            display: flex;
-        }
-        .card {
-            background-color: #ffffff;
-            border: 1px solid var(--border-sharp);
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            width: 100%;
-        }
-        .card-link:hover .card {
-            border-width: 2px;
-        }
-        .meta-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            font-size: 0.75rem;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            text-transform: uppercase;
-        }
-        .outlet-tag {
-            font-weight: 700;
-            border-bottom: 1px solid var(--border-sharp);
-        }
-        .date {
-            color: var(--text-muted);
-            font-family: monospace;
-        }
-        h3.headline-title {
-            margin: 0 0 10px 0;
-            font-size: 1.15rem;
-            font-weight: 700;
-            line-height: 1.35;
-        }
-        p {
-            line-height: 1.5;
-            color: var(--text-muted);
-            font-size: 0.88rem;
-            margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        }
-    </style>
-</head>
-<body>
-    <div class="header-container">
-        <div>
-            <div class="brand-subtitle">Global Events. Stories. Perspectives.</div>
-            <h1 class="brand-title">The Olit World</h1>
-        </div>
-    </div>
-
-    <nav class="global-nav">
-        <a href="index.html">The Olit UK</a> • 
-        <a href="world.html" style="text-decoration: underline; color: #b22222;">The Olit World</a> • 
-        <a href="discussion.html">Discussion Desk</a>
-    </nav>
-
-    <!-- Interactive World Map Section -->
-    <div class="interactive-map-wrapper">
-        <div class="map-instruction">Select a region on the map to explore dispatches</div>
-        <div class="map-container">
-            <img src="images/watercolor-world-map-irina-march.jpg" alt="The Olit World Map">
-            
-            <!-- Hotspots mapped over the world map image matching your sections -->
-            <a href="#world-news" class="continent-hotspot" style="top: 20%; left: 15%; width: 25%; height: 35%;" title="Global Headlines"></a>
-            <a href="#europe" class="continent-hotspot" style="top: 25%; left: 45%; width: 12%; height: 20%;" title="Europe Dispatch"></a>
-            <a href="#middle-east" class="continent-hotspot" style="top: 38%; left: 55%; width: 15%; height: 22%;" title="Middle East Desk"></a>
-            <a href="#asia" class="continent-hotspot" style="top: 25%; left: 70%; width: 22%; height: 45%;" title="Asia-Pacific Region"></a>
-        </div>
-    </div>
-
-    <!-- Global Headlines Section -->
-    <div class="region-section" id="world-news">
-        <div class="region-header">Global Headlines</div>
-        <div class="stories-grid">
-            <a href="https://www.bbc.co.uk/news/articles/crz98zqkz7z0o?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
-                <div class="card">
-                    <div>
-                        <div class="meta-row">
-                            <span class="outlet-tag">BBC News</span>
-                            <span class="date">Thu, 05 Nov</span>
-                        </div>
-                        <h3 class="headline-title">Vance walks Trump tightrope with scathing election critique blaming Iran war</h3>
-                        <p>The vice-president's blunt assessment of Republican election defeat marked one of the sharpest breaks...</p>
-                    </div>
-                </div>
-            </a>
-            <a href="https://www.bbc.co.uk/news/articles/cq1kdgnn2xdeo?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
-                <div class="card">
-                    <div>
-                        <div class="meta-row">
-                            <span class="outlet-tag">BBC News</span>
-                            <span class="date">Wed, 04 Nov</span>
-                        </div>
-                        <h3 class="headline-title">What Democrats can and can't do with their new power after taking Congress</h3>
-                        <p>Democrats can vote legislation through. But Trump still has veto power.</p>
-                    </div>
-                </div>
-            </a>
-            <a href="https://www.theguardian.com/world/2026/nov/04/british-healthcare-worker-ebola-evacuated-drc-to-uk-document-shows" target="_blank" class="card-link">
-                <div class="card">
-                    <div>
-                        <div class="meta-row">
-                            <span class="outlet-tag">World news | The Guardian</span>
-                            <span class="date">Wed, 04 Nov</span>
-                        </div>
-                        <h3 class="headline-title">British healthcare worker with Ebola evacuated from DR Congo to UK</h3>
-                        <p>Patient is in stable condition and will be transferred to a specialist infectious disease unit.</p>
-                    </div>
-                </div>
-            </a>
-            <a href="https://www.theguardian.com/world/2026/nov/04/anc-south-africa-local-elections-water-outages-power-cuts" target="_blank" class="card-link">
-                <div class="card">
-                    <div>
-                        <div class="meta-row">
-                            <span class="outlet-tag">World news | The Guardian</span>
-                            <span class="date">Wed, 04 Nov</span>
-                        </div>
-                        <h3 class="headline-title">ANC faces anger over poor services as South Africans vote in local elections</h3>
-                        <p>Party expected to get less than a third of the vote amid frustration over water outages and power cuts.</p>
-                    </div>
-                </div>
-            </a>
-        </div>
-    </div>
-
-    <!-- Europe Dispatch Section -->
-    <div class="region-section" id="europe">
-        <div class="region-header">Europe Dispatch</div>
-        <div class="stories-grid">
-            <a href="https://www.bbc.co.uk/news/articles/ckx2qzv835pgo?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
-                <div class="card">
-                    <div>
-                        <div class="meta-row">
-                            <span class="outlet-tag">BBC News</span>
-                            <span class="date">Thu, 05 Nov</span>
-                        </div>
-                        <h3 class="headline-title">France gears up for strikes and protests as unions promise national mobilisation</h3>
-                        <p>Five of France's unions have joined a wave of strikes and protests in a national day of action.</p>
-                    </div>
-                </div>
-            </a>
-            <a href="https://www.bbc.co.uk/news/articles/cmpqg08nz3pqo?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
-                <div class="card">
-                    <div>
-                        <div class="meta-row">
-                            <span class="outlet-tag">BBC News</span>
-                            <span class="date">Thu, 05 Nov</span>
-                        </div>
-                        <h3 class="headline-title">Multiple European flights face bomb threats for second time this week</h3>
-                        <p>At least 12 flights across Europe have been affected on Thursday.</p>
-                    </div>
-                </div>
-            </a>
-        </div>
-    </div>
-
-    <!-- Middle East Desk Section -->
-    <div class="region-section" id="middle-east">
-        <div class="region-header">Middle East Desk</div>
-        <div class="stories-grid">
-            <a href="https://www.bbc.co.uk/news/articles/c6d934npl9y8o?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
-                <div class="card">
-                    <div>
-                        <div class="meta-row">
-                            <span class="outlet-tag">BBC News</span>
-                            <span class="date">Wed, 04 Nov</span>
-                        </div>
-                        <h3 class="headline-title">Iran's chief negotiator says Americans voted 'no to war'</h3>
-                        <p>"We endorse this message," Mohammed Bagher Ghalibaf says, as Donald Trump acknowledges the conflict's role.</p>
-                    </div>
-                </div>
-            </a>
-            <a href="https://www.bbc.co.uk/news/articles/c6z98z5z91ppo?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
-                <div class="card">
-                    <div>
-                        <div class="meta-row">
-                            <span class="outlet-tag">BBC News</span>
-                            <span class="date">Wed, 04 Nov</span>
-                        </div>
-                        <h3 class="headline-title">Israel's president begins consultations with parties after election deadlock</h3>
-                        <p>Herzog warns politicians that not every commitment can be fulfilled if they want to avoid another election.</p>
-                    </div>
-                </div>
-            </a>
-        </div>
-    </div>
-
-    <!-- Asia-Pacific Region Section -->
-    <div class="region-section" id="asia">
-        <div class="region-header">Asia-Pacific Region</div>
-        <div class="stories-grid">
-            <a href="https://www.bbc.co.uk/news/articles/cwp9g3rlp8jlo?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
-                <div class="card">
-                    <div>
-                        <div class="meta-row">
-                            <span class="outlet-tag">BBC News</span>
-                            <span class="date">Thu, 05 Nov</span>
-                        </div>
-                        <h3 class="headline-title">Joshua Wong, face of Hong Kong's pro-democracy protests, jailed for 10 years</h3>
-                        <p>Wong, 30, is among hundreds of Hongkongers detained under the controversial national security law.</p>
-                    </div>
-                </div>
-            </a>
-            <a href="https://www.bbc.co.uk/news/articles/cw33kgj7nkemo?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
-                <div class="card">
-                    <div>
-                        <div class="meta-row">
-                            <span class="outlet-tag">BBC News</span>
-                            <span class="date">Wed, 04 Nov</span>
-                        </div>
-                        <h3 class="headline-title">Typhoons batter East Asia as El Niño makes Pacific 'burn with fever'</h3>
-                        <p>Even for countries where typhoons are a way of life, the last few months have brought unusually wild weather.</p>
-                    </div>
-                </div>
-            </a>
-        </div>
-    </div>
-
-</body>
-</html>
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Discussion Desk | Essays & Perspectives</title>
+    <style>
+        :root {
+            --bg-cream: #fbf9f5;
+            --border-sharp: #111111;
+            --text-main: #111111;
+            --text-muted: #555555;
+            --accent-hover: rgba(178, 34, 34, 0.15);
+        }
+        body {
+            font-family: Georgia, "Times New Roman", serif;
+            background-color: var(--bg-cream);
+            color: var(--text-main);
+            margin: 0;
+            padding: 24px;
+            min-height: 100vh;
+            scroll-behavior: smooth;
+        }
+        .header-container {
+            max-width: 1350px;
+            margin: 0 auto 15px auto;
+            border-bottom: 3px solid var(--border-sharp);
+            padding-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+        .brand-subtitle {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+        .brand-title {
+            margin: 0;
+            font-size: 2.2rem;
+            letter-spacing: -0.5px;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+        .global-nav {
+            max-width: 1350px;
+            margin: 0 auto 25px auto;
+            padding: 10px 0;
+            text-align: center;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #ddd;
+        }
+        .global-nav a {
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 700;
+            margin: 0 12px;
+        }
+        .global-nav a:hover {
+            text-decoration: underline;
+            color: #b22222;
+        }
+        .interactive-map-wrapper {
+            max-width: 1350px;
+            margin: 0 auto 40px auto;
+            text-align: center;
+            position: relative;
+        }
+        .map-container {
+            position: relative;
+            display: inline-block;
+            max-width: 100%;
+        }
+        .map-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+            max-height: 550px;
+            object-fit: contain;
+        }
+        .map-instruction {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+        .continent-hotspot {
+            position: absolute;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, border 0.2s ease;
+            border: 2px solid transparent;
+        }
+        .continent-hotspot:hover {
+            background-color: var(--accent-hover);
+            border-color: #b22222;
+        }
+        .photo-showcase-container {
+            max-width: 1350px;
+            margin: 0 auto 45px auto;
+        }
+        .photo-showcase-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            border-bottom: 1px solid var(--border-sharp);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+        .photo-main-frame img {
+            width: 100%;
+            height: auto;
+            max-height: 850px;
+            object-fit: contain;
+            display: block;
+        }
+        .region-section {
+            max-width: 1350px;
+            margin: 0 auto 40px auto;
+        }
+        .region-header {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid var(--border-sharp);
+            padding-bottom: 6px;
+            margin-bottom: 20px;
+        }
+        .stories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        .card-link {
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+        }
+        .card {
+            background-color: #ffffff;
+            border: 1px solid var(--border-sharp);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 100%;
+        }
+        .card-link:hover .card {
+            border-width: 2px;
+        }
+        .meta-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 0.75rem;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            text-transform: uppercase;
+        }
+        .outlet-tag {
+            font-weight: 700;
+            border-bottom: 1px solid var(--border-sharp);
+        }
+        .date {
+            color: var(--text-muted);
+            font-family: monospace;
+        }
+        h3.headline-title {
+            margin: 0 0 10px 0;
+            font-size: 1.15rem;
+            font-weight: 700;
+            line-height: 1.35;
+        }
+        p {
+            line-height: 1.5;
+            color: var(--text-muted);
+            font-size: 0.88rem;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div class="header-container">
+        <div>
+            <div class="brand-subtitle">Events. Stories. Perspectives.</div>
+            <h1 class="brand-title">The Olit UK</h1>
+        </div>
+    </div>
+
+    <nav class="global-nav">
+        <a href="uk.html" style="">The Olit UK</a> • 
+        <a href="world.html" style="">The Olit World</a> • 
+        <a href="discussion.html" style="text-decoration: underline; color: #b22222;">Discussion Desk</a>
+    </nav>
+
+    
+    
+    
+            <div class="region-section" id="opinion">
+                <div class="region-header">Essays & Commentaries</div>
+                <div class="stories-grid">
+        <a href="https://www.theguardian.com/commentisfree/2026/nov/05/kemi-badenoch-polls-tory-party-direction" target="_blank" class="card-link">
+            <div class="card">
+                <div>
+                    <div class="meta-row">
+                        <span class="outlet-tag">Opinion | The Guardian</span>
+                        <span class="date">Thu, 05 No</span>
+                    </div>
+                    <h3 class="headline-title">No amount of sliding in the polls can shake Kemi Badenoch’s self-belief – or alter her party’s direction | Andy Beckett</h3>
+                    <p><p>Two years in to her leadership, Badenoch continues to take the Tories ever-rightwards, into comfort-zone Conservatism...</p>
+                </div>
+            </div>
+        </a>
+        <a href="https://www.theguardian.com/commentisfree/2026/nov/04/abdul-el-sayed-opinion-sharia-law-islamophobia" target="_blank" class="card-link">
+            <div class="card">
+                <div>
+                    <div class="meta-row">
+                        <span class="outlet-tag">Opinion | The Guardian</span>
+                        <span class="date">Wed, 04 No</span>
+                    </div>
+                    <h3 class="headline-title">Get ready habibis, Abdul El-Sayed’s ‘shawarma law’ is coming to the US | Arwa Mahdawi</h3>
+                    <p><p>When the US’s first Muslim senator used Arabic in his victory speech, it cut through the torrent of vile racism Maga ...</p>
+                </div>
+            </div>
+        </a></div>
+            </div>
+
+</body>
+</html>

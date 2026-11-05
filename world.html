@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>The Olit World | Global Intelligence & International Dispatches</title>
+    <style>
+        :root {
+            --bg-cream: #fbf9f5;
+            --border-sharp: #111111;
+            --text-main: #111111;
+            --text-muted: #555555;
+            --accent-hover: rgba(178, 34, 34, 0.15);
+        }
+        body {
+            font-family: Georgia, "Times New Roman", serif;
+            background-color: var(--bg-cream);
+            color: var(--text-main);
+            margin: 0;
+            padding: 24px;
+            min-height: 100vh;
+            scroll-behavior: smooth;
+        }
+        .header-container {
+            max-width: 1350px;
+            margin: 0 auto 15px auto;
+            border-bottom: 3px solid var(--border-sharp);
+            padding-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+        .brand-subtitle {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+        .brand-title {
+            margin: 0;
+            font-size: 2.2rem;
+            letter-spacing: -0.5px;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+        .global-nav {
+            max-width: 1350px;
+            margin: 0 auto 25px auto;
+            padding: 10px 0;
+            text-align: center;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #ddd;
+        }
+        .global-nav a {
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 700;
+            margin: 0 12px;
+        }
+        .global-nav a:hover {
+            text-decoration: underline;
+            color: #b22222;
+        }
+        .interactive-map-wrapper {
+            max-width: 1350px;
+            margin: 0 auto 40px auto;
+            text-align: center;
+            position: relative;
+        }
+        .map-container {
+            position: relative;
+            display: inline-block;
+            max-width: 100%;
+        }
+        .map-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+            max-height: 550px;
+            object-fit: contain;
+        }
+        .map-instruction {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+        .continent-hotspot {
+            position: absolute;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, border 0.2s ease;
+            border: 2px solid transparent;
+        }
+        .continent-hotspot:hover {
+            background-color: var(--accent-hover);
+            border-color: #b22222;
+        }
+        .photo-showcase-container {
+            max-width: 1350px;
+            margin: 0 auto 45px auto;
+        }
+        .photo-showcase-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            border-bottom: 1px solid var(--border-sharp);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+        .photo-main-frame img {
+            width: 100%;
+            height: auto;
+            max-height: 850px;
+            object-fit: contain;
+            display: block;
+        }
+        .region-section {
+            max-width: 1350px;
+            margin: 0 auto 40px auto;
+        }
+        .region-header {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid var(--border-sharp);
+            padding-bottom: 6px;
+            margin-bottom: 20px;
+        }
+        .stories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        .card-link {
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+        }
+        .card {
+            background-color: #ffffff;
+            border: 1px solid var(--border-sharp);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 100%;
+        }
+        .card-link:hover .card {
+            border-width: 2px;
+        }
+        .meta-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 0.75rem;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            text-transform: uppercase;
+        }
+        .outlet-tag {
+            font-weight: 700;
+            border-bottom: 1px solid var(--border-sharp);
+        }
+        .date {
+            color: var(--text-muted);
+            font-family: monospace;
+        }
+        h3.headline-title {
+            margin: 0 0 10px 0;
+            font-size: 1.15rem;
+            font-weight: 700;
+            line-height: 1.35;
+        }
+        p {
+            line-height: 1.5;
+            color: var(--text-muted);
+            font-size: 0.88rem;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div class="header-container">
+        <div>
+            <div class="brand-subtitle">Events. Stories. Perspectives.</div>
+            <h1 class="brand-title">The Olit UK</h1>
+        </div>
+    </div>
+
+    <nav class="global-nav">
+        <a href="uk.html" style="">The Olit UK</a> • 
+        <a href="world.html" style="text-decoration: underline; color: #b22222;">The Olit World</a> • 
+        <a href="discussion.html" style="">Discussion Desk</a>
+    </nav>
+
+    
+    
+    
+            <div class="region-section" id="world-news">
+                <div class="region-header">Global Headlines</div>
+                <div class="stories-grid">
+        <a href="https://www.bbc.co.uk/news/articles/crz98zqkz7z0o?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
+            <div class="card">
+                <div>
+                    <div class="meta-row">
+                        <span class="outlet-tag">BBC News</span>
+                        <span class="date">Thu, 05 No</span>
+                    </div>
+                    <h3 class="headline-title">Vance walks Trump tightrope with scathing election critique blaming Iran war</h3>
+                    <p>The vice-president's blunt assessment of Republican election defeat marked one of the sharpest breaks with a sitting pre...</p>
+                </div>
+            </div>
+        </a>
+        <a href="https://www.bbc.co.uk/news/articles/cq1kdgnn2xdeo?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
+            <div class="card">
+                <div>
+                    <div class="meta-row">
+                        <span class="outlet-tag">BBC News</span>
+                        <span class="date">Wed, 04 No</span>
+                    </div>
+                    <h3 class="headline-title">What Democrats can and can't do with their new power after taking Congress</h3>
+                    <p>Democrats can vote legislation through. But Trump still has veto power.</p>
+                </div>
+            </div>
+        </a>
+        <a href="https://www.theguardian.com/world/2026/nov/04/british-healthcare-worker-ebola-evacuated-drc-to-uk-document-shows" target="_blank" class="card-link">
+            <div class="card">
+                <div>
+                    <div class="meta-row">
+                        <span class="outlet-tag">World news | The Guardian</span>
+                        <span class="date">Wed, 04 No</span>
+                    </div>
+                    <h3 class="headline-title">British healthcare worker with Ebola evacuated from DR Congo to UK</h3>
+                    <p><p>Patient is ⁠in ​stable condition and will be transferred to a specialist ‘high consequence’ infectious disease unit</...</p>
+                </div>
+            </div>
+        </a>
+        <a href="https://www.theguardian.com/world/2026/nov/04/anc-south-africa-local-elections-water-outages-power-cuts" target="_blank" class="card-link">
+            <div class="card">
+                <div>
+                    <div class="meta-row">
+                        <span class="outlet-tag">World news | The Guardian</span>
+                        <span class="date">Wed, 04 No</span>
+                    </div>
+                    <h3 class="headline-title">ANC faces anger over poor services as South Africans vote in local elections</h3>
+                    <p><p>Party expected to get less than a third of the vote amid frustration over water outages and power cuts</p><p>The Afri...</p>
+                </div>
+            </div>
+        </a></div>
+            </div>
+            <div class="region-section" id="europe">
+                <div class="region-header">Europe Dispatch</div>
+                <div class="stories-grid">
+        <a href="https://www.bbc.co.uk/news/articles/ckx2qzv835pgo?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
+            <div class="card">
+                <div>
+                    <div class="meta-row">
+                        <span class="outlet-tag">BBC News</span>
+                        <span class="date">Thu, 05 No</span>
+                    </div>
+                    <h3 class="headline-title">France gears up for strikes and protests as unions promise national mobilisation</h3>
+                    <p>Five of France's unions have joined a wave of strikes and protests in a national day of action.</p>
+                </div>
+            </div>
+        </a>
+        <a href="https://www.bbc.co.uk/news/articles/cmpqg08nz3pqo?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
+            <div class="card">
+                <div>
+                    <div class="meta-row">
+                        <span class="outlet-tag">BBC News</span>
+                        <span class="date">Thu, 05 No</span>
+                    </div>
+                    <h3 class="headline-title">Multiple European flights face bomb threats for second time this week</h3>
+                    <p>At least 12 flights across Europe have been affected on Thursday.</p>
+                </div>
+            </div>
+        </a></div>
+            </div>
+            <div class="region-section" id="middle-east">
+                <div class="region-header">Middle East Desk</div>
+                <div class="stories-grid">
+        <a href="https://www.bbc.co.uk/news/articles/c6d934npl9y8o?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
+            <div class="card">
+                <div>
+                    <div class="meta-row">
+                        <span class="outlet-tag">BBC News</span>
+                        <span class="date">Wed, 04 No</span>
+                    </div>
+                    <h3 class="headline-title">Iran's chief negotiator says Americans voted 'no to war'</h3>
+                    <p>"We endorse this message," Mohammed Bagher Ghalibaf says, as Donald Trump acknowledges the conflict's role in the Republ...</p>
+                </div>
+            </div>
+        </a>
+        <a href="https://www.bbc.co.uk/news/articles/c6z98z5z91ppo?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
+            <div class="card">
+                <div>
+                    <div class="meta-row">
+                        <span class="outlet-tag">BBC News</span>
+                        <span class="date">Wed, 04 No</span>
+                    </div>
+                    <h3 class="headline-title">Israel's president begins consultations with parties after election deadlock</h3>
+                    <p>Herzog warns politicians that "not every commitment and promise can be fulfilled" if they want to avoid another election...</p>
+                </div>
+            </div>
+        </a></div>
+            </div>
+            <div class="region-section" id="asia">
+                <div class="region-header">Asia-Pacific Region</div>
+                <div class="stories-grid">
+        <a href="https://www.bbc.co.uk/news/articles/cwp9g3rlp8jlo?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
+            <div class="card">
+                <div>
+                    <div class="meta-row">
+                        <span class="outlet-tag">BBC News</span>
+                        <span class="date">Thu, 05 No</span>
+                    </div>
+                    <h3 class="headline-title">Joshua Wong, face of Hong Kong's pro-democracy protests, jailed for 10 years</h3>
+                    <p>Wong, 30, is among hundreds of Hongkongers detained under the controversial national security law.</p>
+                </div>
+            </div>
+        </a>
+        <a href="https://www.bbc.co.uk/news/articles/cw33kgj7nkemo?at_medium=RSS&at_campaign=rss" target="_blank" class="card-link">
+            <div class="card">
+                <div>
+                    <div class="meta-row">
+                        <span class="outlet-tag">BBC News</span>
+                        <span class="date">Wed, 04 No</span>
+                    </div>
+                    <h3 class="headline-title">Typhoons batter East Asia as El Niño makes Pacific 'burn with fever'</h3>
+                    <p>Even for countries where typhoons are a way of life, the last few months have brought unusually wild weather.</p>
+                </div>
+            </div>
+        </a></div>
+            </div>
+
+</body>
+</html>

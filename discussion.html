@@ -10,6 +10,7 @@
             --border-sharp: #111111;
             --text-main: #111111;
             --text-muted: #555555;
+            --board-header: #b22222;
         }
         body {
             font-family: Georgia, "Times New Roman", serif;
@@ -20,818 +21,443 @@
             max-width: 1000px;
             margin: 0 auto;
         }
-.header - container
-{
-    max - width: 1350px;
-margin: 0
-auto
-15
-px
-auto;
-border - bottom: 3
-px
-solid
-var(--border - sharp);
-padding - bottom: 12
-px;
-}
-.brand - title
-{
-    margin: 0;
-font - size: 2.2
-rem;
-text - transform: uppercase;
-font - weight: 700;
-}
-.global
--nav
-{
-    max - width: 1350px;
-margin: 0
-auto
-25
-px
-auto;
-padding: 10
-px
-0;
-text - align: center;
-font - family: -apple - system, BlinkMacSystemFont, "Segoe UI", Roboto, sans - serif;
-font - size: 0.85
-rem;
-text - transform: uppercase;
-letter - spacing: 1
-px;
-border - bottom: 1
-px
-solid  # ddd;
-}
-.global
--nav
-a
-{
-    color: var(--text - main);
-text - decoration: none;
-font - weight: 700;
-margin: 0
-12
-px;
-}
-.main - container
-{
-    max - width: 1000px;
-margin: 0
-auto;
-font - family: -apple - system, BlinkMacSystemFont, "Segoe UI", Roboto, sans - serif;
-}
-.new - thread - box
-{
-    background - color:  # ffffff;
-        border: 1
-px
-solid
-var(--border - sharp);
-padding: 15
-px;
-margin - bottom: 30
-px;
-}
-.new - thread - box
-h3
-{
-    margin - top: 0;
-font - size: 1
-rem;
-text - transform: uppercase;
-border - bottom: 1
-px
-solid  # ddd;
-padding - bottom: 5
-px;
-}
-.form - group
-{
-    margin - bottom: 10px;
-}
-.form - group
-label
-{
-    display: block;
-font - size: 0.8
-rem;
-font - weight: bold;
-margin - bottom: 3
-px;
-}
-.form - group
-input[type = "text"], .form - group
-textarea
-{
-    width: 100 %;
-padding: 6
-px;
-box - sizing: border - box;
-border: 1
-px
-solid  # ccc;
-font - family: inherit;
-}
-.btn - submit
-{
-    background - color: var(--border - sharp);
-color:  # ffffff;
-border: none;
-padding: 8
-px
-16
-px;
-cursor: pointer;
-font - weight: bold;
-text - transform: uppercase;
-font - size: 0.75
-rem;
-}
-.btn - submit: hover
-{
-    background - color: var(--board - header);
-}
-
-/ *Thread & Post
-Styling * /
-.thread
-{
-    background - color:  # ffffff;
-        border: 1
-px
-solid
-var(--border - sharp);
-padding: 15
-px;
-margin - bottom: 25
-px;
-}
-.post - header
-{
-    font - size: 0.8rem;
-color: var(--text - muted);
-margin - bottom: 10
-px;
-border - bottom: 1
-px
-dashed  # ccc;
-padding - bottom: 5
-px;
-}
-.post - subject
-{
-    color: var(--board - header);
-font - weight: bold;
-font - size: 1
-rem;
-}
-.poster - name
-{
-    color:  # 117743;
-        font - weight: bold;
-}
-.post - number
-{
-    color: var(--text - muted);
-font - family: monospace;
-}
-.post - body
-{
-    display: flex;
-gap: 15
-px;
-margin - bottom: 15
-px;
-}
-.post - image
-{
-    max - width: 180px;
-max - height: 180
-px;
-object - fit: contain;
-border: 1
-px
-solid  # ddd;
-}
-.reply - image
-{
-    max - width: 140px;
-max - height: 140
-px;
-object - fit: contain;
-border: 1
-px
-solid  # ddd;
-}
-.post - text
-{
-    font - size: 0.9rem;
-line - height: 1.4;
-white - space: pre - wrap;
-}
-
-/ *Replies
-Section * /
-.replies - container
-{
-    margin - left: 20px;
-border - left: 2
-px
-solid  # eee;
-padding - left: 15
-px;
-}
-.reply
-{
-    background - color: var(--bg - cream);
-border: 1
-px
-solid  # ddd;
-padding: 10
-px;
-margin - top: 10
-px;
-}
-.reply - body
-{
-    display: flex;
-gap: 12
-px;
-margin - top: 5
-px;
-}
-.reply - form
-{
-    margin - top: 15px;
-padding - top: 10
-px;
-border - top: 1
-px
-solid  # eee;
-display: flex;
-flex - direction: column;
-gap: 8
-px;
-}
-.reply - inputs
-{
-    display: flex;
-gap: 10
-px;
-align - items: center;
-}
-.admin - link
-{
-    text - align: center;
-margin - top: 40
-px;
-font - size: 0.75
-rem;
-font - family: -apple - system, BlinkMacSystemFont, "Segoe UI", Roboto, sans - serif;
-}
-.admin - link
-a
-{
-    color: var(--text - muted);
-text - decoration: none;
-}
-< / style >
-
-< !-- Firebase
-SDKs(Compat
-versions
-for simple HTML usage) -->
-< script
-src = "https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js" > < / script >
-< script
-src = "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js" > < / script >
-< / head >
-< body >
-
-< div
-
-
-class ="header-container" >
-
-< h1
-
-
-class ="brand-title" > The Olit Discussion < / h1 >
-
-< / div >
-
-< nav
-
-
-class ="global-nav" >
-
-< a
-href = "index.html" > Olit
-UK < / a > •
-< a
-href = "world.html" > Olit
-Globe < / a > •
-< a
-href = "videos.html" > Olit
-Video < / a > •
-< a
-href = "discussion.html"
-style = "text-decoration: underline; color: #b22222;" > Olit
-Discussion < / a >
-< / nav >
-
-< div
-
-
-class ="main-container" >
-
-< !-- New
-Thread
-Form -->
-< div
-
-
-class ="new-thread-box" >
-
-< h3 > Start
-a
-New
-Thread(Max
-15
-Active
-Threads) < / h3 >
-< div
-
-
-class ="form-group" >
-
-< label > Subject < / label >
-< input
-type = "text"
-id = "thread-subject"
-placeholder = "Thread topic..." >
-< / div >
-< div
-
-
-class ="form-group" >
-
-< label > Comment < / label >
-< textarea
-id = "thread-comment"
-rows = "3"
-placeholder = "Write your post..." > < / textarea >
-< / div >
-< div
-
-
-class ="form-group" >
-
-< label > Upload
-Image(Optional) < / label >
-< input
-type = "file"
-id = "thread-image-file"
-accept = "image/*" >
-< / div >
-< button
-
-
-class ="btn-submit" onclick="createThread()" > Post Thread < / button >
-
-< / div >
-
-< !-- Threads
-Container -->
-< div
-id = "threads-wrapper" > Loading
-posts... < / div >
-
-< !-- Admin
-Mode
-Link -->
-< div
-
-
-class ="admin-link" >
-
-< a
-href = "#"
-onclick = "toggleAdmin(); return false;"
-id = "admin-toggle-btn" > The
-Olit < / a >
-< / div >
-
-< / div >
-
-< script >
-// --- 1.
-FIREBASE
-INITIALIZATION - --
-const
-firebaseConfig = {
-    apiKey: "AIzaSyAcfIPE9OB-dv1f90W4wS2dOdD2IyHw2Qg",
-    authDomain: "the-olit-discussion-87baf.firebaseapp.com",
-    projectId: "the-olit-discussion-87baf",
-    storageBucket: "the-olit-discussion-87baf.firebasestorage.app",
-    messagingSenderId: "1042760901031",
-    appId: "1:1042760901031:web:24e279c580b22f53b85682",
-    measurementId: "G-0DBE2N94Y3"
-};
-
-firebase.initializeApp(firebaseConfig);
-const
-db = firebase.firestore();
-
-// --- 2.
-STATE
-VARIABLES - --
-const
-MAX_THREADS = 15;
-const
-ADMIN_PASSCODE = "OperationEuclid1990"; // CHANGE
-THIS
-TO
-YOUR
-SECRET
-PASSWORD
-let
-isAdmin = false;
-let
-threads = [];
-
-// --- 3.
-REALTIME
-DATABASE
-SYNC - --
-// Listens
-for live updates from Firestore and renders automatically
-db.collection("threads")
-.orderBy("createdAt", "desc")
-.onSnapshot((snapshot) = > {
-    threads = snapshot.docs.map(doc= > ({
-    docId: doc.id,
-    ...doc.data()
-}));
-renderThreads();
-}, (error) = > {
-    console.error("Error fetching threads: ", error);
-document.getElementById('threads-wrapper').innerHTML = ` < p
-style = "color:red;" > Make
-sure
-Firestore is created in 'Test Mode'. < / p > `;
-});
-
-// --- 4.
-ADMIN
-TOGGLE - --
-function
-toggleAdmin()
-{
-if (!isAdmin)
-{
-    const
-pass = prompt("enter admin code:");
-if (pass == = ADMIN_PASSCODE)
-{
-    isAdmin = true;
-document.getElementById('admin-toggle-btn').innerText = "[Disable Admin Mode]";
-alert("Admin mode enabled. You can now delete posts for all visitors.");
-renderThreads();
-} else if (pass != = null) {
-alert("Incorrect passcode.");
-}
-} else {
-isAdmin = false;
-document.getElementById('admin-toggle-btn').innerText = "[Admin Mode]";
-alert("Admin mode disabled.");
-renderThreads();
-}
-}
-
-// --- 5.
-RENDER
-FUNCTIONS - --
-function
-renderThreads()
-{
-    const
-wrapper = document.getElementById('threads-wrapper');
-wrapper.innerHTML = '';
-
-if (threads.length === 0)
-{
-    wrapper.innerHTML = '<p style="color: var(--text-muted);">No threads active yet. Be the first to start a discussion!</p>';
-return;
-}
-
-threads.forEach((thread) = > {
-    const
-threadEl = document.createElement('div');
-threadEl.className = 'thread';
-
-let
-imgHtml = thread.image ? ` < img
-src = "${thread.image}"
-
-
-class ="post-image" alt="Uploaded Image" > `: '';
-
-
-let
-deleteThreadBtn = isAdmin ? ` < span
-style = "float: right; cursor: pointer; color: #b22222; font-weight: bold;"
-onclick = "deleteThread('${thread.docId}')" > [Delete Thread] < / span > `: '';
-
-let
-repliesHtml = (thread.replies | | []).map((reply, replyIndex) = > {
-    let
-replyImgHtml = reply.image ? ` < img
-src = "${reply.image}"
-
-
-class ="reply-image" alt="Reply Image" > `: '';
-
-
-let
-deleteReplyBtn = isAdmin ? ` < span
-style = "float: right; cursor: pointer; color: #b22222; font-weight: bold;"
-onclick = "deleteReply('${thread.docId}', ${replyIndex})" > [Delete] < / span > `: '';
-
-return `
-< div
-
-
-class ="reply" >
-
-< div
-
-
-class ="post-header" >
-
-< span
-
-
-class ="poster-name" > ${reply.name} < / span >
-
-< span >${reply.date} < / span >
-< span
-
-
-class ="post-number" > No.${reply.id} < / span >
-
-${deleteReplyBtn}
-< / div >
-< div
-
-
-class ="reply-body" >
-
-${replyImgHtml}
-< div
-
-
-class ="post-text" > ${reply.comment} < / div >
-
-< / div >
-< / div >
-`;
-}).join('');
-
-threadEl.innerHTML = `
-                     < div
-
-
-class ="post-header" >
-
-< span
-
-
-class ="post-subject" > ${thread.subject} < / span >
-
-< span
-
-
-class ="poster-name" > ${thread.name} < / span >
-
-< span >${thread.date} < / span >
-< span
-
-
-class ="post-number" > No.${thread.id} < / span >
-
-${deleteThreadBtn}
-< / div >
-< div
-
-
-class ="post-body" >
-
-${imgHtml}
-< div
-
-
-class ="post-text" > ${thread.comment} < / div >
-
-< / div >
-< div
-
-
-class ="replies-container" >
-
-${repliesHtml}
-< div
-
-
-class ="reply-form" >
-
-< div
-
-
-class ="reply-inputs" >
-
-< input
-type = "text"
-id = "reply-text-${thread.docId}"
-style = "flex:1; padding:6px;"
-placeholder = "Write a reply..." >
-< button
-
-
-class ="btn-submit" onclick="addReply('${thread.docId}')" > Reply < / button >
-
-< / div >
-< div >
-< input
-type = "file"
-id = "reply-image-file-${thread.docId}"
-accept = "image/*"
-style = "font-size:0.75rem;" >
-< / div >
-< / div >
-< / div >
-`;
-
-wrapper.appendChild(threadEl);
-});
-}
-
-// --- 6.
-ACTION
-FUNCTIONS(FIRESTORE
-WRITES) ---
-function
-createThread()
-{
-    const
-subject = document.getElementById('thread-subject').value.trim();
-const
-comment = document.getElementById('thread-comment').value.trim();
-const
-fileInput = document.getElementById('thread-image-file');
-const
-file = fileInput.files[0];
-
-if (!comment)
-{
-    alert('Comment text is required to post a thread.');
-return;
-}
-
-const
-processThread = (imageDataUrl = null) = > {
-// Remove
-oldest
-thread if limit
-of
-5 is exceeded
-if (threads.length >= MAX_THREADS) {
-const oldestDocId = threads[threads.length - 1].docId;
-db.collection("threads").doc(oldestDocId).delete();
-}
-
-// Add
-new
-thread
-document
-to
-Firestore
-db.collection("threads").add({
-    id: Math.floor(100000 + Math.random() * 900000),
-    subject: subject | | 'Untitled',
-    name: 'Anonymous',
-    date: new Date().toUTCString().slice(0, 22),
-    comment: comment,
-image: imageDataUrl,
-replies: [],
-createdAt: firebase.firestore.FieldValue.serverTimestamp()
-}).then(() = > {
-    document.getElementById('thread-subject').value = '';
-document.getElementById('thread-comment').value = '';
-fileInput.value = '';
-}).catch(err= > alert("Error posting thread: " + err.message));
-};
-
-if (file) {
-const
-reader = new
-FileReader();
-reader.onload = (e) = > processThread(e.target.result);
-reader.readAsDataURL(file);
-} else {
-processThread();
-}
-}
-
-function
-addReply(docId)
-{
-    const
-textInput = document.getElementById(`reply - text -${docId}
-`);
-const
-comment = textInput.value.trim();
-const
-fileInput = document.getElementById(`reply - image - file -${docId}
-`);
-const
-file = fileInput.files[0];
-
-if (!comment & & !file)
-{
-alert('Please provide a comment or an image to reply.');
-return;
-}
-
-const
-processReply = (imageDataUrl = null) = > {
-const
-thread = threads.find(t= > t.docId == = docId);
-if (thread) {
-const updatedReplies = thread.replies | |[];
-updatedReplies.push({
-id: Math.floor(100000 + Math.random() * 900000),
-name: 'Anonymous',
-date: new
-Date().toUTCString().slice(0, 22),
-comment: comment,
-image: imageDataUrl
-});
-
-// Update
-replies
-array in Firestore
-db.collection("threads").doc(docId).update({
-    replies: updatedReplies
-});
-}
-};
-
-if (file) {
-const
-reader = new
-FileReader();
-reader.onload = (e) = > processReply(e.target.result);
-reader.readAsDataURL(file);
-} else {
-processReply();
-}
-}
-
-// --- 7.
-PERMANENT
-MODERATION
-DELETIONS - --
-function
-deleteThread(docId)
-{
-if (isAdmin & & confirm("Permanently delete this thread for everyone?"))
-{
-db.collection("threads").doc(docId).delete();
-}
-}
-
-function
-deleteReply(docId, replyIndex)
-{
-if (isAdmin & & confirm("Permanently delete this reply?"))
-{
-const
-thread = threads.find(t= > t.docId == = docId);
-if (thread) {
-const updatedReplies =[...thread.replies];
-updatedReplies.splice(replyIndex, 1);
-
-db.collection("threads").doc(docId).update({
-replies: updatedReplies
-});
-}
-}
-}
-< / script >
-    < / body >
-        < / html >
+        .header-container {
+            max-width: 1350px;
+            margin: 0 auto 15px auto;
+            border-bottom: 3px solid var(--border-sharp);
+            padding-bottom: 12px;
+        }
+        .brand-title {
+            margin: 0;
+            font-size: 2.2rem;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+        .global-nav {
+            max-width: 1350px;
+            margin: 0 auto 25px auto;
+            padding: 10px 0;
+            text-align: center;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #ddd;
+        }
+        .global-nav a {
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 700;
+            margin: 0 12px;
+        }
+        .main-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        .new-thread-box {
+            background-color: #ffffff;
+            border: 1px solid var(--border-sharp);
+            padding: 15px;
+            margin-bottom: 30px;
+        }
+        .new-thread-box h3 {
+            margin-top: 0;
+            font-size: 1rem;
+            text-transform: uppercase;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+        .form-group {
+            margin-bottom: 10px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+        .form-group input[type="text"], .form-group textarea {
+            width: 100%;
+            padding: 6px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            font-family: inherit;
+        }
+        .btn-submit {
+            background-color: var(--border-sharp);
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+        }
+        .btn-submit:hover {
+            background-color: var(--board-header);
+        }
+
+        /* Thread & Post Styling */
+        .thread {
+            background-color: #ffffff;
+            border: 1px solid var(--border-sharp);
+            padding: 15px;
+            margin-bottom: 25px;
+        }
+        .post-header {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            border-bottom: 1px dashed #ccc;
+            padding-bottom: 5px;
+        }
+        .post-subject {
+            color: var(--board-header);
+            font-weight: bold;
+            font-size: 1rem;
+        }
+        .poster-name {
+            color: #117743;
+            font-weight: bold;
+        }
+        .post-number {
+            color: var(--text-muted);
+            font-family: monospace;
+        }
+        .post-body {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .post-image {
+            max-width: 180px;
+            max-height: 180px;
+            object-fit: contain;
+            border: 1px solid #ddd;
+        }
+        .reply-image {
+            max-width: 140px;
+            max-height: 140px;
+            object-fit: contain;
+            border: 1px solid #ddd;
+        }
+        .post-text {
+            font-size: 0.9rem;
+            line-height: 1.4;
+            white-space: pre-wrap;
+        }
+
+        /* Replies Section */
+        .replies-container {
+            margin-left: 20px;
+            border-left: 2px solid #eee;
+            padding-left: 15px;
+        }
+        .reply {
+            background-color: var(--bg-cream);
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        .reply-body {
+            display: flex;
+            gap: 12px;
+            margin-top: 5px;
+        }
+        .reply-form {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .reply-inputs {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .admin-link {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 0.75rem;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        .admin-link a {
+            color: var(--text-muted);
+            text-decoration: none;
+        }
+    </style>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+    <div class="header-container">
+        <h1 class="brand-title">The Olit Discussion</h1>
+    </div>
+
+    <nav class="global-nav">
+        <a href="index.html">Olit UK</a> •
+        <a href="world.html">Olit Globe</a> •
+        <a href="videos.html">Olit Video</a> •
+        <a href="discussion.html" style="text-decoration: underline; color: #b22222;">Olit Discussion</a>
+    </nav>
+
+    <div class="main-container">
+        <!-- New Thread Form -->
+        <div class="new-thread-box">
+            <h3>Start a New Thread (Max 15 Active Threads)</h3>
+            <div class="form-group">
+                <label>Subject</label>
+                <input type="text" id="thread-subject" placeholder="Thread topic...">
+            </div>
+            <div class="form-group">
+                <label>Comment</label>
+                <textarea id="thread-comment" rows="3" placeholder="Write your post..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Upload Image (Optional)</label>
+                <input type="file" id="thread-image-file" accept="image/*">
+            </div>
+            <button class="btn-submit" onclick="createThread()">Post Thread</button>
+        </div>
+
+        <!-- Threads Container -->
+        <div id="threads-wrapper">Loading posts...</div>
+
+        <!-- Admin Mode Link -->
+        <div class="admin-link">
+            <a href="#" onclick="toggleAdmin(); return false;" id="admin-toggle-btn">The Olit</a>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. FIREBASE INITIALIZATION ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAcfIPE9OB-dv1f90W4wS2dOdD2IyHw2Qg",
+            authDomain: "the-olit-discussion-87baf.firebaseapp.com",
+            projectId: "the-olit-discussion-87baf",
+            storageBucket: "the-olit-discussion-87baf.firebasestorage.app",
+            messagingSenderId: "1042760901031",
+            appId: "1:1042760901031:web:24e279c580b22f53b85682",
+            measurementId: "G-0DBE2N94Y3"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // --- 2. STATE VARIABLES ---
+        const MAX_THREADS = 15;
+        const ADMIN_PASSCODE = "OperationEuclid1990";
+        let isAdmin = false;
+        let threads = [];
+
+        // --- 3. REALTIME DATABASE SYNC ---
+        db.collection("threads")
+          .orderBy("createdAt", "desc")
+          .onSnapshot((snapshot) => {
+              threads = snapshot.docs.map(doc => ({
+                  docId: doc.id,
+                  ...doc.data()
+              }));
+              renderThreads();
+          }, (error) => {
+              console.error("Error fetching threads: ", error);
+              document.getElementById('threads-wrapper').innerHTML = `<p style="color:red;">Make sure Firestore is created in 'Test Mode'.</p>`;
+          });
+
+        // --- 4. ADMIN TOGGLE ---
+        function toggleAdmin() {
+            if (!isAdmin) {
+                const pass = prompt("Enter admin code:");
+                if (pass === ADMIN_PASSCODE) {
+                    isAdmin = true;
+                    document.getElementById('admin-toggle-btn').innerText = "[Disable Admin Mode]";
+                    alert("Admin mode enabled.");
+                    renderThreads();
+                } else if (pass !== null) {
+                    alert("Incorrect passcode.");
+                }
+            } else {
+                isAdmin = false;
+                document.getElementById('admin-toggle-btn').innerText = "The Olit";
+                alert("Admin mode disabled.");
+                renderThreads();
+            }
+        }
+
+        // --- 5. RENDER FUNCTIONS ---
+        function renderThreads() {
+            const wrapper = document.getElementById('threads-wrapper');
+            wrapper.innerHTML = '';
+
+            if (threads.length === 0) {
+                wrapper.innerHTML = '<p style="color: var(--text-muted);">No threads active yet. Be the first to start a discussion!</p>';
+                return;
+            }
+
+            threads.forEach((thread) => {
+                const threadEl = document.createElement('div');
+                threadEl.className = 'thread';
+
+                let imgHtml = thread.image ? `<img src="${thread.image}" class="post-image" alt="Uploaded Image">` : '';
+                let deleteThreadBtn = isAdmin ? `<span style="float: right; cursor: pointer; color: #b22222; font-weight: bold;" onclick="deleteThread('${thread.docId}')">[Delete Thread]</span>` : '';
+
+                let repliesHtml = (thread.replies || []).map((reply, replyIndex) => {
+                    let replyImgHtml = reply.image ? `<img src="${reply.image}" class="reply-image" alt="Reply Image">` : '';
+                    let deleteReplyBtn = isAdmin ? `<span style="float: right; cursor: pointer; color: #b22222; font-weight: bold;" onclick="deleteReply('${thread.docId}', ${replyIndex})">[Delete]</span>` : '';
+
+                    return `
+                        <div class="reply">
+                            <div class="post-header">
+                                <span class="poster-name">${reply.name}</span>
+                                <span>${reply.date}</span>
+                                <span class="post-number">No.${reply.id}</span>
+                                ${deleteReplyBtn}
+                            </div>
+                            <div class="reply-body">
+                                ${replyImgHtml}
+                                <div class="post-text">${reply.comment}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                threadEl.innerHTML = `
+                    <div class="post-header">
+                        <span class="post-subject">${thread.subject}</span>
+                        <span class="poster-name">${thread.name}</span>
+                        <span>${thread.date}</span>
+                        <span class="post-number">No.${thread.id}</span>
+                        ${deleteThreadBtn}
+                    </div>
+                    <div class="post-body">
+                        ${imgHtml}
+                        <div class="post-text">${thread.comment}</div>
+                    </div>
+                    <div class="replies-container">
+                        ${repliesHtml}
+                        <div class="reply-form">
+                            <div class="reply-inputs">
+                                <input type="text" id="reply-text-${thread.docId}" style="flex:1; padding:6px;" placeholder="Write a reply...">
+                                <button class="btn-submit" onclick="addReply('${thread.docId}')">Reply</button>
+                            </div>
+                            <div>
+                                <input type="file" id="reply-image-file-${thread.docId}" accept="image/*" style="font-size:0.75rem;">
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                wrapper.appendChild(threadEl);
+            });
+        }
+
+        // --- 6. ACTION FUNCTIONS (FIRESTORE WRITES) ---
+        function createThread() {
+            const subject = document.getElementById('thread-subject').value.trim();
+            const comment = document.getElementById('thread-comment').value.trim();
+            const fileInput = document.getElementById('thread-image-file');
+            const file = fileInput.files[0];
+
+            if (!comment) {
+                alert('Comment text is required to post a thread.');
+                return;
+            }
+
+            const processThread = (imageDataUrl = null) => {
+                if (threads.length >= MAX_THREADS) {
+                    const oldestDocId = threads[threads.length - 1].docId;
+                    db.collection("threads").doc(oldestDocId).delete();
+                }
+
+                db.collection("threads").add({
+                    id: Math.floor(100000 + Math.random() * 900000),
+                    subject: subject || 'Untitled',
+                    name: 'Anonymous',
+                    date: new Date().toUTCString().slice(0, 22),
+                    comment: comment,
+                    image: imageDataUrl,
+                    replies: [],
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                }).then(() => {
+                    document.getElementById('thread-subject').value = '';
+                    document.getElementById('thread-comment').value = '';
+                    fileInput.value = '';
+                }).catch(err => alert("Error posting thread: " + err.message));
+            };
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => processThread(e.target.result);
+                reader.readAsDataURL(file);
+            } else {
+                processThread();
+            }
+        }
+
+        function addReply(docId) {
+            const textInput = document.getElementById(`reply-text-${docId}`);
+            const comment = textInput.value.trim();
+            const fileInput = document.getElementById(`reply-image-file-${docId}`);
+            const file = fileInput.files[0];
+
+            if (!comment && !file) {
+                alert('Please provide a comment or an image to reply.');
+                return;
+            }
+
+            const processReply = (imageDataUrl = null) => {
+                const thread = threads.find(t => t.docId === docId);
+                if (thread) {
+                    const updatedReplies = thread.replies || [];
+                    updatedReplies.push({
+                        id: Math.floor(100000 + Math.random() * 900000),
+                        name: 'Anonymous',
+                        date: new Date().toUTCString().slice(0, 22),
+                        comment: comment,
+                        image: imageDataUrl
+                    });
+
+                    db.collection("threads").doc(docId).update({
+                        replies: updatedReplies
+                    });
+                }
+            };
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => processReply(e.target.result);
+                reader.readAsDataURL(file);
+            } else {
+                processReply();
+            }
+        }
+
+        // --- 7. MODERATION DELETIONS ---
+        function deleteThread(docId) {
+            if (isAdmin && confirm("Permanently delete this thread for everyone?")) {
+                db.collection("threads").doc(docId).delete();
+            }
+        }
+
+        function deleteReply(docId, replyIndex) {
+            if (isAdmin && confirm("Permanently delete this reply?")) {
+                const thread = threads.find(t => t.docId === docId);
+                if (thread) {
+                    const updatedReplies = [...thread.replies];
+                    updatedReplies.splice(replyIndex, 1);
+
+                    db.collection("threads").doc(docId).update({
+                        replies: updatedReplies
+                    });
+                }
+            }
+        }
+    </script>
+</body>
+</html>

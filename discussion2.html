@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Olit | Discussion</title>
+    <style>
+        :root {
+            --bg-cream: #fbf9f5;
+            --border-sharp: #111111;
+            --text-main: #111111;
+            --text-muted: #555555;
+        }
+        body {
+            font-family: Georgia, "Times New Roman", serif;
+            background-color: var(--bg-cream);
+            color: var(--text-main);
+            margin: 0;
+            padding: 24px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .header-container {
+            border-bottom: 3px solid var(--border-sharp);
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+        }
+        .thread-card {
+            border: 1px solid var(--border-sharp);
+            padding: 16px;
+            margin-bottom: 20px;
+            background: transparent;
+        }
+        .meta-line {
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+        .thread-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin: 0 0 10px 0;
+        }
+        .thread-tag {
+            font-family: sans-serif;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            background: var(--border-sharp);
+            color: #fff;
+            padding: 2px 6px;
+            margin-right: 6px;
+        }
+        .post-form {
+            border: 2px solid var(--border-sharp);
+            padding: 16px;
+            margin-bottom: 30px;
+        }
+        .post-form input, .post-form textarea {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 8px;
+            box-sizing: border-box;
+            font-family: Georgia, serif;
+            border: 1px solid var(--border-sharp);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-container">
+        <h1>The Olit Discussion</h1>
+    </div>
+
+    <!-- Form for User Threads -->
+    <div class="post-form">
+        <h3>Start a New Thread</h3>
+        <input type="text" id="threadSubject" placeholder="Subject">
+        <textarea id="threadComment" rows="4" placeholder="Comment"></textarea>
+        <button onclick="postUserThread()" style="padding: 8px 16px; background: var(--border-sharp); color: white; border: none; cursor: pointer;">Post Thread</button>
+    </div>
+
+    <h2>Active Threads</h2>
+    <div id="threadContainer">
+        <!-- Automated and manual posts render here -->
+    </div>
+
+    <script>
+        // 1. Fetch Automated Feeds and create discussion threads automatically
+        async function loadAutomatedThreads() {
+            const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent('https://feeds.bbci.co.uk/news/world/rss.xml')}`;
+            try {
+                const response = await fetch(proxyUrl);
+                const data = await response.json();
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(data.contents, "text/xml");
+                const items = Array.from(xmlDoc.querySelectorAll("item")).slice(0, 5); // Take top 5 news items
+
+                const container = document.getElementById("threadContainer");
+
+                items.forEach((item, index) => {
+                    const title = item.querySelector("title").textContent;
+                    const link = item.querySelector("link").textContent;
+                    const desc = item.querySelector("description").textContent.replace(/<[^>]*>?/gm, '');
+                    const date = item.querySelector("pubDate") ? item.querySelector("pubDate").textContent.substring(0, 16) : 'Recent';
+
+                    const html = `
+                        <div class="thread-card">
+                            <div class="meta-line">
+                                <span class="thread-tag">Automated Feed</span> Anonymous ${date} No.${100000 + index}
+                            </div>
+                            <div class="thread-title">${title}</div>
+                            <p>${desc}</p>
+                            <a href="${link}" target="_blank" style="color: black; font-family: monospace;">[ Read Source Article ]</a>
+                        </div>
+                    `;
+                    container.innerHTML += html;
+                });
+            } catch (e) {
+                console.error("Error generating auto-threads:", e);
+            }
+        }
+
+        // 2. Simple Local Storage setup for User-posted threads
+        function postUserThread() {
+            const subject = document.getElementById("threadSubject").value;
+            const comment = document.getElementById("threadComment").value;
+            if (!subject || !comment) return;
+
+            const userThreads = JSON.parse(localStorage.getItem("user_threads") || "[]");
+            userThreads.unshift({
+                subject: subject,
+                comment: comment,
+                date: new Date().toUTCString().substring(0, 22),
+                id: Math.floor(100000 + Math.random() * 900000)
+            });
+
+            // Keep max 5 user threads active
+            if (userThreads.length > 5) userThreads.pop();
+
+            localStorage.setItem("user_threads", JSON.stringify(userThreads));
+            location.reload();
+        }
+
+        function renderUserThreads() {
+            const userThreads = JSON.parse(localStorage.getItem("user_threads") || "[]");
+            const container = document.getElementById("threadContainer");
+            userThreads.forEach(t => {
+                const html = `
+                    <div class="thread-card">
+                        <div class="meta-line">
+                            <span class="thread-tag" style="background: #b22222;">User Post</span> Anonymous ${t.date} No.${t.id}
+                        </div>
+                        <div class="thread-title">${t.subject}</div>
+                        <p>${t.comment}</p>
+                    </div>
+                `;
+                container.innerHTML += html;
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            renderUserThreads();
+            loadAutomatedThreads();
+        });
+    </script>
+
+</body>
+</html>
